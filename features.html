@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Features — HealthCone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --green-deep:#0d2b1a; --green-mid:#1a4d2e; --green-bright:#2d7a4f;
+    --cyan:#00e5c8; --cyan-dim:#00b49e; --ivory:#f5f0e8; --ivory-dim:#e8e0d0;
+    --red-alert:#ff4d4d; --amber:#ffb347;
+    --text-main:#f5f0e8; --text-dim:#9ab8a8;
+    --card-bg:rgba(255,255,255,0.04); --card-border:rgba(0,229,200,0.12);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'DM Sans',sans-serif;background:var(--green-deep);color:var(--text-main);min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 80% 60% at 90% 20%,rgba(0,229,200,0.06) 0%,transparent 60%),radial-gradient(ellipse 60% 80% at 10% 80%,rgba(45,122,79,0.12) 0%,transparent 60%);pointer-events:none}
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 2rem;height:68px;display:flex;align-items:center;justify-content:space-between;background:rgba(13,43,26,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border)}
+  .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:var(--text-main)}
+  .nav-logo svg{width:32px;height:32px}
+  .nav-links{display:flex;align-items:center;gap:0.25rem}
+  .nav-links a{text-decoration:none;color:var(--text-dim);font-size:0.88rem;font-weight:500;padding:0.45rem 1rem;border-radius:8px;transition:color 0.2s,background 0.2s}
+  .nav-links a:hover,.nav-links a.active{color:var(--cyan);background:rgba(0,229,200,0.08)}
+  .nav-cta{text-decoration:none;background:var(--cyan);color:var(--green-deep)!important;font-weight:700!important;padding:0.45rem 1.2rem!important;border-radius:8px;transition:opacity 0.2s!important}
+  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+  .hamburger span{display:block;width:24px;height:2px;background:var(--text-main);border-radius:2px}
+  .mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;background:rgba(13,43,26,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:1rem 2rem 1.5rem;flex-direction:column;gap:0.5rem;z-index:99}
+  .mobile-menu.open{display:flex}
+  .mobile-menu a{text-decoration:none;color:var(--text-dim);font-size:1rem;padding:0.6rem 0;border-bottom:1px solid var(--card-border);transition:color 0.2s}
+  .mobile-menu a:hover,.mobile-menu a.active{color:var(--cyan)}
+  @media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}}
+
+  .page-header{position:relative;z-index:1;padding:8rem 2rem 4rem;max-width:1200px;margin:0 auto;border-bottom:1px solid var(--card-border)}
+  .page-header .section-label{display:inline-block;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:0.8rem}
+  .page-header h1{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:800;line-height:1.1;margin-bottom:1rem}
+  .page-header p{color:var(--text-dim);font-size:1.05rem;line-height:1.7;max-width:560px;font-weight:300}
+
+  .section{position:relative;z-index:1;padding:4rem 2rem;max-width:1200px;margin:0 auto}
+
+  /* Feature Cards */
+  .features-main{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:4rem}
+  @media(max-width:768px){.features-main{grid-template-columns:1fr}}
+  .feature-big{background:var(--card-bg);border:1px solid var(--card-border);border-radius:20px;padding:2.5rem;position:relative;overflow:hidden;transition:border-color 0.3s,transform 0.3s}
+  .feature-big:hover{border-color:rgba(0,229,200,0.3);transform:translateY(-3px)}
+  .feature-big.span2{grid-column:1/-1}
+  .feature-big::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,229,200,0.04) 0%,transparent 60%);pointer-events:none}
+  .feat-icon{width:56px;height:56px;background:linear-gradient(135deg,rgba(0,229,200,0.15),rgba(45,122,79,0.2));border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin-bottom:1.5rem}
+  .feature-big h3{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;margin-bottom:0.8rem}
+  .feature-big p{color:var(--text-dim);font-size:0.9rem;line-height:1.7;margin-bottom:1.5rem}
+  .feat-tags{display:flex;flex-wrap:wrap;gap:0.5rem}
+  .feat-tag{background:rgba(0,229,200,0.08);border:1px solid rgba(0,229,200,0.15);color:var(--cyan);font-size:0.72rem;font-weight:600;padding:0.3rem 0.7rem;border-radius:6px;letter-spacing:0.04em}
+
+  /* System Architecture */
+  .arch-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:0.6rem}
+  .arch-sub{color:var(--text-dim);font-size:0.92rem;line-height:1.6;margin-bottom:2rem}
+  .arch-flow{display:flex;flex-wrap:wrap;align-items:center;gap:0;margin-bottom:3rem;background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;overflow:hidden}
+  .arch-node{flex:1;min-width:140px;padding:1.5rem 1.2rem;text-align:center;border-right:1px solid var(--card-border);position:relative}
+  .arch-node:last-child{border-right:none}
+  .arch-node-icon{font-size:1.8rem;margin-bottom:0.5rem}
+  .arch-node-title{font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:700;margin-bottom:0.3rem;color:var(--cyan)}
+  .arch-node-sub{font-size:0.72rem;color:var(--text-dim);line-height:1.4}
+  .arch-arrow{position:absolute;right:-14px;top:50%;transform:translateY(-50%);z-index:2;color:var(--cyan);font-size:1.2rem;pointer-events:none}
+
+  /* Limitations */
+  .limits-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.2rem}
+  .limit-card{background:rgba(255,77,77,0.05);border:1px solid rgba(255,77,77,0.15);border-radius:14px;padding:1.5rem;display:flex;gap:1rem;align-items:flex-start}
+  .limit-card .icon{font-size:1.4rem;flex-shrink:0;margin-top:2px}
+  .limit-card h4{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:700;margin-bottom:0.3rem;color:#ff8080}
+  .limit-card p{font-size:0.82rem;color:var(--text-dim);line-height:1.5}
+
+  /* Budget */
+  .budget-table{width:100%;border-collapse:collapse;margin-top:1.5rem}
+  .budget-table th{text-align:left;padding:0.8rem 1rem;background:rgba(0,229,200,0.08);color:var(--cyan);font-family:'Syne',sans-serif;font-size:0.78rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border-bottom:1px solid var(--card-border)}
+  .budget-table td{padding:0.9rem 1rem;border-bottom:1px solid rgba(255,255,255,0.04);font-size:0.9rem;color:var(--text-dim)}
+  .budget-table tr:last-child td{border-bottom:none;color:var(--text-main);font-weight:600}
+  .budget-table .amount{color:var(--ivory);font-family:'Syne',sans-serif;font-weight:700}
+  .budget-table .total-row td{background:rgba(0,229,200,0.06);color:var(--cyan)}
+  .budget-table .total-row .amount{color:var(--cyan)}
+
+  footer{position:relative;z-index:1;border-top:1px solid var(--card-border);padding:2.5rem 2rem;color:var(--text-dim);font-size:0.85rem}
+  .footer-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1rem}
+  .footer-logo{font-family:'Syne',sans-serif;font-weight:800;color:var(--text-main)}
+  .footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+  .footer-links a{color:var(--text-dim);text-decoration:none;transition:color 0.2s}
+  .footer-links a:hover{color:var(--cyan)}
+  footer a{color:var(--cyan);text-decoration:none}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  .animate{animation:fadeUp 0.7s ease both}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="15" stroke="#00e5c8" stroke-width="1.5"/><path d="M6 16 L10 11 L13 18 L16 8 L19 20 L22 14 L26 16" stroke="#00e5c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 22 C16 22 12 18.5 12 16.5 C12 14.8 13.3 14 14.5 14 C15.3 14 16 14.6 16 14.6 C16 14.6 16.7 14 17.5 14 C18.7 14 20 14.8 20 16.5 C20 18.5 16 22 16 22Z" fill="#00e5c8" opacity="0.7"/></svg>
+    Health<span style="color:var(--cyan)">Cone</span>
+  </a>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/features" class="active">Features</a>
+    <a href="/about">About</a>
+    <a href="/assistant">AI Assistant</a>
+    <a href="/admin">Admin</a>
+    <a href="/assistant" class="nav-cta">Try Now →</a>
+  </div>
+  <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="/">Home</a><a href="/features" class="active">Features</a><a href="/about">About</a><a href="/assistant">AI Assistant</a><a href="/admin">Admin</a>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header animate">
+  <div class="section-label">Platform Features</div>
+  <h1>Everything Inside<br>HealthCone</h1>
+  <p>A deep look at the complete AI-based health monitoring system — from wearable integration to hospital response, plus the honest limitations and roadmap ahead.</p>
+</div>
+
+<!-- CORE FEATURES -->
+<section class="section">
+  <div style="font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:0.8rem">Core Capabilities</div>
+  <div class="arch-title">What HealthCone Does</div>
+  <div class="arch-sub">Six integrated capabilities that work together to keep you safe 24/7.</div>
+
+  <div class="features-main">
+    <div class="feature-big">
+      <div class="feat-icon">❤️</div>
+      <h3>Real-Time Heart Rate Monitoring</h3>
+      <p>HealthCone provides continuous heart rate tracking via smartwatch sensors. Data is streamed in real time to our cloud backend where it's processed for anomalies using AI-trained detection models. Every beat is logged, analyzed, and stored securely.</p>
+      <div class="feat-tags"><span class="feat-tag">Multi-sensor Fusion</span><span class="feat-tag">SpO2</span><span class="feat-tag">Temperature</span><span class="feat-tag">Gyro</span></div>
+    </div>
+    <div class="feature-big">
+      <div class="feat-icon">🚨</div>
+      <h3>Automatic Emergency Alerts</h3>
+      <p>When abnormal cardiac activity is detected — whether dangerously high (tachycardia) or low (bradycardia) — the system fires an emergency alert in under 10 seconds. The alert is sent to the user, their emergency contacts, and the nearest hospital simultaneously.</p>
+      <div class="feat-tags"><span class="feat-tag">Tachycardia Detection</span><span class="feat-tag">Bradycardia Detection</span><span class="feat-tag">&lt;10s Response</span></div>
+    </div>
+    <div class="feature-big">
+      <div class="feat-icon">📍</div>
+      <h3>GPS Location Sharing with Hospitals</h3>
+      <p>The moment an emergency alert fires, HealthCone shares the user's precise GPS coordinates with the nearest connected hospital. Ambulance teams receive real-time location updates, eliminating search time and ensuring the fastest possible response.</p>
+      <div class="feat-tags"><span class="feat-tag">Real-Time GPS</span><span class="feat-tag">Hospital API</span><span class="feat-tag">Ambulance Routing</span></div>
+    </div>
+    <div class="feature-big">
+      <div class="feat-icon">🤖</div>
+      <h3>AI Health Assistant</h3>
+      <p>Powered by Bruno-GPT5 (LLaMA 3.3 70B via Groq), the HealthCone AI assistant helps users understand their health data, answers wellness questions, explains the system, and provides compassionate health guidance — available 24/7 on the /assistant page.</p>
+      <div class="feat-tags"><span class="feat-tag">LLaMA 3.3 70B</span><span class="feat-tag">Groq Speed</span><span class="feat-tag">Health-Tuned</span><span class="feat-tag">24/7</span></div>
+    </div>
+    <div class="feature-big">
+      <div class="feat-icon">📊</div>
+      <h3>Sleep Pattern & Wellness Analysis</h3>
+      <p>Beyond heart rate, HealthCone analyzes sleep patterns, medication reminder schedules, and fall detection algorithms. The system builds a holistic picture of your wellness journey and flags deteriorating trends before they become emergencies.</p>
+      <div class="feat-tags"><span class="feat-tag">Sleep Analysis</span><span class="feat-tag">Medication Reminders</span><span class="feat-tag">Fall Detection</span></div>
+    </div>
+    <div class="feature-big">
+      <div class="feat-icon">🏥</div>
+      <h3>Admin Dashboard & Hospital Network</h3>
+      <p>A real-time admin panel lets healthcare administrators monitor all active users, view live alert queues, track system health metrics, and coordinate emergency responses. Hospital teams get a dedicated view of incoming critical alerts with patient location data.</p>
+      <div class="feat-tags"><span class="feat-tag">Live Dashboard</span><span class="feat-tag">Alert Queue</span><span class="feat-tag">12+ Hospitals</span><span class="feat-tag">Multi-Tenant</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM ARCHITECTURE -->
+<section class="section" style="padding-top:0">
+  <div style="font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:0.8rem">System Architecture</div>
+  <div class="arch-title">How the Pipeline Works</div>
+  <div class="arch-sub">HealthCone is the first AI-based health monitoring system in Rwanda. Here's the full data flow from wrist to hospital.</div>
+
+  <div class="arch-flow">
+    <div class="arch-node">
+      <div class="arch-node-icon">⌚</div>
+      <div class="arch-node-title">Wearable</div>
+      <div class="arch-node-sub">Smartwatch collects HR, SpO2, Temp, Gyro</div>
+    </div>
+    <div class="arch-node">
+      <div class="arch-node-icon">📡</div>
+      <div class="arch-node-title">Edge Gateway</div>
+      <div class="arch-node-sub">Encrypted transmission & data validation</div>
+    </div>
+    <div class="arch-node">
+      <div class="arch-node-icon">☁️</div>
+      <div class="arch-node-title">Cloud Backend</div>
+      <div class="arch-node-sub">Normalization & predictive risk scoring</div>
+    </div>
+    <div class="arch-node">
+      <div class="arch-node-icon">🧠</div>
+      <div class="arch-node-title">AI Engine</div>
+      <div class="arch-node-sub">Anomaly detection, NLP, computer vision</div>
+    </div>
+    <div class="arch-node">
+      <div class="arch-node-icon">🏥</div>
+      <div class="arch-node-title">Hospital</div>
+      <div class="arch-node-sub">Emergency alert + live GPS location</div>
+    </div>
+  </div>
+</section>
+
+<!-- LIMITATIONS -->
+<section class="section" style="padding-top:0">
+  <div style="font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--red-alert);margin-bottom:0.8rem">Honest Limitations</div>
+  <div class="arch-title" style="color:var(--ivory-dim)">What We Can't Do Yet</div>
+  <div class="arch-sub">HealthCone is a growing project. Here are the current limitations we're working to address.</div>
+  <div class="limits-grid">
+    <div class="limit-card">
+      <div class="icon">⌚</div>
+      <div><h4>No Own Smartwatch</h4><p>We cannot manufacture our own smartwatches yet. HealthCone works as a web-based platform that integrates with compatible third-party wearables.</p></div>
+    </div>
+    <div class="limit-card">
+      <div class="icon">🔋</div>
+      <div><h4>Battery Life</h4><p>Continuous monitoring shortens wearable battery life significantly. Sensor data accuracy also depends on the quality of the connected device.</p></div>
+    </div>
+    <div class="limit-card">
+      <div class="icon">🌐</div>
+      <div><h4>Internet Required</h4><p>Real-time sync requires an active internet connection. In areas with poor connectivity, alerts may be delayed — a critical challenge in rural Rwanda.</p></div>
+    </div>
+    <div class="limit-card">
+      <div class="icon">🤖</div>
+      <div><h4>AI Model Upgrades Needed</h4><p>Our AI models are not yet fully upgraded, which can result in suboptimal response quality. Budget is the primary constraint. Upgrading AI models costs 300,000+ RWF.</p></div>
+    </div>
+    <div class="limit-card">
+      <div class="icon">🔒</div>
+      <div><h4>Privacy & Cloud</h4><p>Health data stored in the cloud raises privacy concerns. We're working toward a compliant, encrypted architecture that meets HIPAA-equivalent standards.</p></div>
+    </div>
+    <div class="limit-card">
+      <div class="icon">🏦</div>
+      <div><h4>High Hospital Onboarding Costs</h4><p>Integrating hospitals into the network requires technical setup and staff training. High implementation costs slow expansion of the hospital network.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- BUDGET -->
+<section class="section" style="padding-top:0">
+  <div style="font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:0.8rem">Budget Needed</div>
+  <div class="arch-title">What Full Deployment Requires</div>
+  <div class="arch-sub">Transparent breakdown of the budget HealthCone needs to reach its full potential.</div>
+  <div style="background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;overflow:hidden">
+    <table class="budget-table">
+      <thead><tr><th>Item</th><th>Purpose</th><th class="amount">Cost (RWF)</th></tr></thead>
+      <tbody>
+        <tr><td>Smartwatch (per unit)</td><td>Patient-grade wearable sensor device</td><td class="amount">30,000</td></tr>
+        <tr><td>AI Model Upgrading</td><td>Fine-tuning models for cardiac accuracy</td><td class="amount">300,000+</td></tr>
+        <tr><td>Domain Deployment (.com)</td><td>Professional domain registration & SSL</td><td class="amount">20,000</td></tr>
+        <tr><td>Hospital Onboarding</td><td>Technical setup + staff training per site</td><td class="amount">150,000+</td></tr>
+        <tr><td>Cloud Infrastructure</td><td>Scalable backend, storage, monitoring</td><td class="amount">80,000/mo</td></tr>
+        <tr class="total-row"><td colspan="2"><strong>Estimated Total (Phase 1)</strong></td><td class="amount">580,000+</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Health<span style="color:var(--cyan)">Cone</span></div>
+    <div class="footer-links"><a href="/">Home</a><a href="/features">Features</a><a href="/about">About</a><a href="/assistant">AI Assistant</a><a href="/admin">Admin</a></div>
+    <div>Created by <a href="/about">INEZA AIME BRUNO</a> · Rwanda</div>
+  </div>
+</footer>
+
+<script>
+function toggleMenu(){document.getElementById('mobileMenu').classList.toggle('open')}
+</script>
+</body>
+</html>
