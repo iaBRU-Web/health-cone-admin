@@ -1,499 +1,2068 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>AI Assistant — HealthCone</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
-<style>
-  :root{--green-deep:#0d2b1a;--green-mid:#1a4d2e;--green-bright:#2d7a4f;--cyan:#00e5c8;--cyan-dim:#00b49e;--ivory:#f5f0e8;--red-alert:#ff4d4d;--text-main:#f5f0e8;--text-dim:#9ab8a8;--card-bg:rgba(255,255,255,0.04);--card-border:rgba(0,229,200,0.12)}
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{font-family:'DM Sans',sans-serif;background:var(--green-deep);color:var(--text-main);overflow:hidden;display:flex;flex-direction:column}
-  body::before{content:'';position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse 60% 50% at 80% 10%,rgba(0,229,200,0.05) 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 20% 90%,rgba(45,122,79,0.08) 0%,transparent 60%);pointer-events:none}
-
-  /* NAV */
-  nav{position:relative;z-index:100;padding:0 2rem;height:68px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;background:rgba(13,43,26,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border)}
-  .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:var(--text-main)}
-  .nav-logo svg{width:32px;height:32px}
-  .nav-links{display:flex;align-items:center;gap:0.25rem}
-  .nav-links a{text-decoration:none;color:var(--text-dim);font-size:0.88rem;font-weight:500;padding:0.45rem 1rem;border-radius:8px;transition:color 0.2s,background 0.2s}
-  .nav-links a:hover,.nav-links a.active{color:var(--cyan);background:rgba(0,229,200,0.08)}
-  .nav-cta{background:var(--cyan)!important;color:var(--green-deep)!important;font-weight:700!important;padding:0.45rem 1.2rem!important;border-radius:8px!important}
-  .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
-  .hamburger span{display:block;width:24px;height:2px;background:var(--text-main);border-radius:2px}
-
-  /* MOBILE NAV */
-  .mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;background:rgba(13,43,26,0.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--card-border);padding:1rem 2rem 1.5rem;flex-direction:column;gap:0.5rem;z-index:200}
-  .mobile-menu.open{display:flex}
-  .mobile-menu a{text-decoration:none;color:var(--text-dim);font-size:1rem;padding:0.6rem 0;border-bottom:1px solid var(--card-border);transition:color 0.2s}
-  .mobile-menu a:hover,.mobile-menu a.active{color:var(--cyan)}
-  @media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}}
-
-  /* CHAT SHELL */
-  .chat-shell{display:flex;flex:1;overflow:hidden;position:relative;z-index:1}
-
-  /* SIDEBAR */
-  .sidebar{width:280px;flex-shrink:0;background:rgba(13,43,26,0.6);border-right:1px solid var(--card-border);display:flex;flex-direction:column;padding:1.2rem;gap:0.8rem;overflow:hidden}
-  @media(max-width:768px){.sidebar{display:none}}
-  .sidebar-title{font-family:'Syne',sans-serif;font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-dim);padding:0.4rem 0.6rem}
-  .new-chat-btn{display:flex;align-items:center;gap:8px;background:rgba(0,229,200,0.1);border:1px solid rgba(0,229,200,0.2);color:var(--cyan);font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;padding:0.7rem 1rem;border-radius:10px;cursor:pointer;transition:background 0.2s;width:100%;text-align:left}
-  .new-chat-btn:hover{background:rgba(0,229,200,0.18)}
-  .chat-history{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:0.3rem}
-  .chat-history::-webkit-scrollbar{width:4px}
-  .chat-history::-webkit-scrollbar-thumb{background:rgba(0,229,200,0.2);border-radius:2px}
-  .history-item{padding:0.65rem 0.8rem;border-radius:8px;font-size:0.82rem;color:var(--text-dim);cursor:pointer;transition:background 0.2s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .history-item:hover{background:rgba(255,255,255,0.05);color:var(--text-main)}
-  .history-item.active{background:rgba(0,229,200,0.08);color:var(--cyan)}
-  .model-section{border-top:1px solid var(--card-border);padding-top:0.8rem;margin-top:auto}
-  .model-label{font-size:0.7rem;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.4rem;display:block}
-  .model-select{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);color:var(--text-main);font-family:'DM Sans',sans-serif;font-size:0.82rem;padding:0.5rem 0.8rem;border-radius:8px;cursor:pointer;outline:none;appearance:none}
-  .model-select:focus{border-color:var(--cyan)}
-  .model-select option{background:#0d2b1a}
-
-  /* CHAT AREA */
-  .chat-area{flex:1;display:flex;flex-direction:column;min-width:0}
-  .messages{flex:1;overflow-y:auto;padding:2rem;display:flex;flex-direction:column;gap:1.5rem}
-  .messages::-webkit-scrollbar{width:6px}
-  .messages::-webkit-scrollbar-thumb{background:rgba(0,229,200,0.15);border-radius:3px}
-
-  /* WELCOME SCREEN */
-  .welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:2rem;gap:1.5rem;min-height:400px}
-  .welcome-icon{width:72px;height:72px;background:linear-gradient(135deg,rgba(0,229,200,0.15),rgba(45,122,79,0.2));border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2rem}
-  .welcome h2{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800}
-  .welcome p{color:var(--text-dim);max-width:440px;line-height:1.7;font-size:0.92rem}
-  .suggestion-chips{display:flex;flex-wrap:wrap;gap:0.6rem;justify-content:center;max-width:560px}
-  .chip{background:var(--card-bg);border:1px solid var(--card-border);color:var(--text-dim);font-size:0.8rem;padding:0.5rem 1rem;border-radius:100px;cursor:pointer;transition:border-color 0.2s,color 0.2s}
-  .chip:hover{border-color:var(--cyan);color:var(--cyan)}
-
-  /* MESSAGE BUBBLES */
-  .msg{display:flex;gap:1rem;animation:msgIn 0.3s ease both;max-width:820px;width:100%}
-  @keyframes msgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-  .msg.user{flex-direction:row-reverse;margin-left:auto}
-  .msg.ai{margin-right:auto}
-  .msg-avatar{width:36px;height:36px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:0.72rem;font-weight:800;letter-spacing:-0.5px}
-  .msg.ai   .msg-avatar{background:linear-gradient(135deg,rgba(0,229,200,0.2),rgba(45,122,79,0.3));color:var(--cyan)}
-  .msg.user .msg-avatar{background:rgba(255,255,255,0.08);color:var(--text-dim)}
-  .msg-bubble{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:1rem 1.2rem;font-size:0.92rem;line-height:1.75;max-width:calc(100% - 52px)}
-  .msg.user .msg-bubble{background:rgba(0,229,200,0.08);border-color:rgba(0,229,200,0.2)}
-  .msg-bubble strong{color:var(--cyan)}
-  .msg-bubble em{color:var(--ivory-dim);font-style:italic}
-  .msg-bubble ul,.msg-bubble ol{padding-left:1.3rem;margin:0.5rem 0}
-  .msg-bubble li{margin:0.3rem 0;color:var(--text-dim)}
-  .msg-bubble code{background:rgba(0,0,0,0.35);padding:0.15rem 0.45rem;border-radius:4px;font-family:monospace;font-size:0.84em;color:var(--cyan)}
-  .msg-bubble h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin:0.7rem 0 0.3rem;color:var(--text-main)}
-  .msg-bubble p+p{margin-top:0.6rem}
-  .msg-bubble hr{border:none;border-top:1px solid var(--card-border);margin:0.8rem 0}
-
-  /* TYPING INDICATOR */
-  .typing-bubble{background:var(--card-bg);border:1px solid var(--card-border);border-radius:16px;padding:1rem 1.4rem;display:inline-flex;gap:6px;align-items:center}
-  .typing-dot{width:7px;height:7px;background:var(--cyan);border-radius:50%;opacity:0.4;animation:typingDot 1.2s ease-in-out infinite}
-  .typing-dot:nth-child(2){animation-delay:0.2s}
-  .typing-dot:nth-child(3){animation-delay:0.4s}
-  @keyframes typingDot{0%,80%,100%{transform:scale(1);opacity:0.35}40%{transform:scale(1.4);opacity:1}}
-
-  /* INPUT AREA */
-  .input-area{border-top:1px solid var(--card-border);background:rgba(13,43,26,0.85);backdrop-filter:blur(20px);padding:1.2rem 2rem;flex-shrink:0}
-  .input-row{display:flex;gap:0.8rem;align-items:flex-end;max-width:820px;margin:0 auto}
-  .input-wrap{flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);border-radius:14px;padding:0.8rem 1rem;display:flex;gap:0.6rem;align-items:flex-end;transition:border-color 0.2s}
-  .input-wrap:focus-within{border-color:rgba(0,229,200,0.35)}
-  textarea{flex:1;background:transparent;border:none;outline:none;color:var(--text-main);font-family:'DM Sans',sans-serif;font-size:0.93rem;line-height:1.5;resize:none;max-height:140px;min-height:24px}
-  textarea::placeholder{color:var(--text-dim)}
-  .send-btn{width:40px;height:40px;background:var(--cyan);border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity 0.2s,transform 0.15s}
-  .send-btn:hover:not(:disabled){opacity:0.85;transform:scale(1.06)}
-  .send-btn:disabled{opacity:0.35;cursor:not-allowed}
-  .input-footer{text-align:center;font-size:0.72rem;color:var(--text-dim);margin-top:0.6rem;max-width:820px;margin-left:auto;margin-right:auto}
-  .input-footer a{color:var(--cyan);text-decoration:none}
-
-  /* MOBILE MODEL SELECT */
-  .mobile-model{display:none;margin-bottom:0.6rem}
-  @media(max-width:768px){.mobile-model{display:block}}
-  .mobile-model select{width:100%;background:rgba(255,255,255,0.05);border:1px solid var(--card-border);color:var(--text-main);font-family:'DM Sans',sans-serif;font-size:0.82rem;padding:0.5rem 0.8rem;border-radius:8px;cursor:pointer;outline:none}
-  .mobile-model select option{background:#0d2b1a}
-
-  /* ERROR STATE */
-  .msg-error .msg-bubble{border-color:rgba(255,77,77,0.3);background:rgba(255,77,77,0.05);color:#ff9090}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HealthCone AI Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Fraunces:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="https://health-cone.vercel.app/" class="nav-logo">
-    <svg viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="16" r="15" stroke="#00e5c8" stroke-width="1.5"/>
-      <path d="M6 16 L10 11 L13 18 L16 8 L19 20 L22 14 L26 16" stroke="#00e5c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M16 22 C16 22 12 18.5 12 16.5 C12 14.8 13.3 14 14.5 14 C15.3 14 16 14.6 16 14.6 C16 14.6 16.7 14 17.5 14 C18.7 14 20 14.8 20 16.5 C20 18.5 16 22 16 22Z" fill="#00e5c8" opacity="0.7"/>
-    </svg>
-    Health<span style="color:var(--cyan)">Cone</span>
-  </a>
-  <div class="nav-links">
-    <a href="https://health-cone.vercel.app/">Home</a>
-    <a href="https://health-cone.vercel.app/features">Features</a>
-    <a href="https://health-cone.vercel.app/about">About</a>
-    <a href="https://health-cone.vercel.app/assistant" class="active">AI Assistant</a>
-    <a href="https://health-cone.vercel.app/admin">Admin</a>
-    <a href="https://health-cone.vercel.app/assistant" class="nav-cta">Try Now →</a>
-  </div>
-  <div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
-</nav>
-
-<div class="mobile-menu" id="mobileMenu">
-  <a href="https://health-cone.vercel.app/">Home</a>
-  <a href="https://health-cone.vercel.app/features">Features</a>
-  <a href="https://health-cone.vercel.app/about">About</a>
-  <a href="https://health-cone.vercel.app/assistant" class="active">AI Assistant</a>
-  <a href="https://health-cone.vercel.app/admin">Admin</a>
-</div>
-
-<div class="chat-shell">
-
-  <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-title">HealthCone AI</div>
-    <button class="new-chat-btn" onclick="newChat()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      New Chat
-    </button>
-    <div class="chat-history" id="chatHistory"></div>
-    <div class="model-section">
-      <span class="model-label">AI Model</span>
-      <select class="model-select" id="modelSelect">
-        <option value="groq-1">Groq — LLaMA 3.3 70B #1</option>
-        <option value="groq-2">Groq — LLaMA 3.3 70B #2</option>
-        <option value="groq-3">Groq — LLaMA 3.3 70B #3</option>
-        <option value="groq-4">Groq — LLaMA 3.3 70B #4</option>
-      </select>
+  <!-- ===== HEALTH-CONE NAVIGATION HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="https://health-cone.vercel.app/" class="header-logo">
+        <span class="logo-icon">🏥</span>
+        <span class="logo-text">HealthCone</span>
+      </a>
+      <nav class="header-nav">
+        <a href="https://health-cone.vercel.app/" class="nav-link">Home</a>
+        <a href="https://health-cone.vercel.app/features.html" class="nav-link">Features</a>
+        <a href="https://health-cone.vercel.app/about.html" class="nav-link">About</a>
+        <a href="https://health-cone.vercel.app/assistant.html" class="nav-link active">AI Assistant</a>
+        <a href="https://health-cone.vercel.app/admin.html" class="nav-link nav-admin">Admin</a>
+      </nav>
+      <button class="header-menu-btn" id="headerMenuBtn">☰</button>
     </div>
-  </div>
+    <!-- Mobile nav -->
+    <div class="mobile-nav" id="mobileNav">
+      <a href="https://health-cone.vercel.app/" class="mobile-nav-link">🏠 Home</a>
+      <a href="https://health-cone.vercel.app/features.html" class="mobile-nav-link">⚡ Features</a>
+      <a href="https://health-cone.vercel.app/about.html" class="mobile-nav-link">ℹ️ About</a>
+      <a href="https://health-cone.vercel.app/assistant.html" class="mobile-nav-link">🤖 AI Assistant</a>
+      <a href="https://health-cone.vercel.app/admin.html" class="mobile-nav-link">⚙️ Admin</a>
+    </div>
+  </header>
+  <!-- ===== END NAVIGATION HEADER ===== -->
 
-  <!-- CHAT AREA -->
-  <div class="chat-area">
-    <div class="messages" id="messages">
-      <div class="welcome" id="welcomeScreen">
-        <div class="welcome-icon">🏥</div>
-        <h2>HealthCone AI Assistant</h2>
-        <p>Powered by Bruno-GPT5 — ask anything about heart health, HealthCone features, wellness tips, or emergency guidance. I'm here for you.</p>
-        <div class="suggestion-chips">
-          <div class="chip" onclick="sendSuggestion('What is HealthCone and how does it work?')">What is HealthCone?</div>
-          <div class="chip" onclick="sendSuggestion('What heart rate is considered dangerous?')">Dangerous heart rate?</div>
-          <div class="chip" onclick="sendSuggestion('What should I do during a cardiac emergency?')">Cardiac emergency steps</div>
-          <div class="chip" onclick="sendSuggestion('How does HealthCone detect heart problems?')">How does detection work?</div>
-          <div class="chip" onclick="sendSuggestion('What are tips for a healthier heart?')">Heart health tips</div>
-          <div class="chip" onclick="sendSuggestion('How fast does HealthCone alert a hospital?')">Alert speed?</div>
+  <div class="container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">
+          <span class="sidebar-logo">🏥</span> HealthCone AI
+        </div>
+        <button class="theme-toggle" id="themeToggle">🌙</button>
+      </div>
+      
+      <!-- Cloud Sync Section -->
+      <div class="email-section">
+        <div class="email-toggle" id="emailToggle">
+          <span class="email-toggle-icon">☁️</span>
+          <span class="email-toggle-text">Cloud Sync</span>
+          <span class="mode-badge guest" id="modeBadge">Guest</span>
+        </div>
+        <div class="email-input-area" id="emailInputArea">
+          <input type="email" class="email-input" id="userEmail" placeholder="your@email.com" autocomplete="username">
+          <input type="password" class="email-input" id="userPassword" placeholder="password" autocomplete="current-password">
+          <button class="sync-login-btn" id="syncLoginBtn">🔐 Login & Sync</button>
+          <div class="sync-status" id="syncStatus">
+            <span>🔒</span>
+            <span>Enter email & password to sync</span>
+          </div>
+        </div>
+      </div>
+      
+      <button class="new-chat-btn" id="newChatBtn">+ New Consultation</button>
+      <button class="image-gen-btn" id="imageGenBtn">🩺 Health Image Analysis</button>
+      <button class="view-all-chats-btn" id="viewAllChatsBtn">📋 View All Chats</button>
+      
+      <div class="search-box">
+        <input type="text" placeholder="Search health chats..." id="searchInput">
+      </div>
+      
+      <div class="chat-list" id="chatList"></div>
+      
+      <!-- Health Quick Topics -->
+      <div class="guidance-panel">
+        <div class="guidance-title">💡 Quick Health Topics</div>
+        <div class="guidance-content">
+          <div class="tip">🩺 Ask about <strong>symptoms & conditions</strong></div>
+          <div class="tip">💊 Get <strong>medication information</strong></div>
+          <div class="tip">🥗 Learn about <strong>nutrition & diet</strong></div>
+          <div class="tip">🧘 Explore <strong>mental wellness tips</strong></div>
+          <div class="tip">⚠️ <strong>Always consult a doctor</strong> for diagnosis</div>
+        </div>
+      </div>
+      
+      <div class="footer-info">
+        <div class="creator-info">Powered by <strong>HealthCone</strong></div>
+        <div class="company-info">BRU Companies Limited</div>
+        <div class="thanks-info">
+          <a href="https://health-cone.vercel.app/" class="footer-link">🏠 Visit HealthCone</a>
         </div>
       </div>
     </div>
 
-    <!-- INPUT -->
-    <div class="input-area">
-      <div class="mobile-model">
-        <select id="modelSelectMobile" onchange="syncModel(this.value)">
-          <option value="groq-1">Groq — LLaMA 3.3 70B #1</option>
-          <option value="groq-2">Groq — LLaMA 3.3 70B #2</option>
-          <option value="groq-3">Groq — LLaMA 3.3 70B #3</option>
-          <option value="groq-4">Groq — LLaMA 3.3 70B #4</option>
-        </select>
+    <!-- Main Chat Area -->
+    <div class="main-chat" id="mainChat">
+      <div class="chat-header-container">
+        <div class="chat-header" id="chatHeader">New Health Consultation</div>
+        <button class="rename-chat-btn" id="renameChatBtn" title="Rename chat">✏️</button>
       </div>
-      <div class="input-row">
-        <div class="input-wrap">
-          <textarea
-            id="msgInput"
-            placeholder="Ask about heart health, HealthCone, or wellness..."
+      
+      <div class="messages-container" id="messagesContainer">
+        <!-- Welcome message area -->
+        <div class="welcome-area" id="welcomeArea">
+          <div class="welcome-icon">🏥</div>
+          <h2 class="welcome-title">HealthCone AI Assistant</h2>
+          <p class="welcome-subtitle">Your trusted health information companion. Ask me anything about health, wellness, nutrition, medications, symptoms, and more.</p>
+          <div class="quick-prompts">
+            <button class="quick-prompt-btn" onclick="setPrompt('What are common symptoms of the flu?')">🤒 Flu symptoms</button>
+            <button class="quick-prompt-btn" onclick="setPrompt('Give me tips for a healthy diet')">🥗 Healthy diet tips</button>
+            <button class="quick-prompt-btn" onclick="setPrompt('How can I improve my sleep quality?')">😴 Better sleep</button>
+            <button class="quick-prompt-btn" onclick="setPrompt('What are signs of high blood pressure?')">💓 Blood pressure</button>
+            <button class="quick-prompt-btn" onclick="setPrompt('How to manage stress and anxiety?')">🧘 Stress management</button>
+            <button class="quick-prompt-btn" onclick="setPrompt('What vitamins should I take daily?')">💊 Daily vitamins</button>
+          </div>
+          <div class="disclaimer-notice">
+            ⚕️ <strong>Medical Disclaimer:</strong> HealthCone AI provides health information for educational purposes only. Always consult a qualified healthcare professional for medical advice, diagnosis, or treatment.
+          </div>
+        </div>
+      </div>
+      
+      <!-- Bottom Disclaimer -->
+      <div class="disclaimer-bar">
+        <span class="disclaimer-text">⚕️ HealthCone AI provides health information only — not medical advice. Always consult a licensed healthcare professional.</span>
+      </div>
+      
+      <div class="input-area">
+        <div class="input-wrapper">
+          <button class="attach-btn" id="attachBtn" title="Attach file">📎</button>
+          <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt" style="display: none;">
+          <textarea 
+            id="messageInput" 
+            placeholder="Ask about symptoms, conditions, medications, nutrition, wellness... (Enter to send)"
             rows="1"
-            onkeydown="handleKey(event)"
-            oninput="autoResize(this)"
           ></textarea>
-          <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send message">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"/>
-              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-          </button>
+          <select class="model-selector" id="modelSelector">
+            <optgroup label="DeepSeek (Smart)">
+              <option value="deepseek-1">DeepSeek Chat #1</option>
+              <option value="deepseek-2">DeepSeek Chat #2</option>
+            </optgroup>
+            <optgroup label="Groq (Fast & Free)">
+              <option value="groq-1">Groq - LLaMA 3.3 70B #1</option>
+              <option value="groq-2">Groq - LLaMA 3.3 70B #2</option>
+              <option value="groq-3">Groq - LLaMA 3.3 70B #3</option>
+              <option value="groq-4">Groq - LLaMA 3.3 70B #4</option>
+            </optgroup>
+            <optgroup label="OpenRouter (Variety)">
+              <option value="openrouter-1">OpenRouter - LLaMA 3.1 8B #1</option>
+              <option value="openrouter-2">OpenRouter - LLaMA 3.1 8B #2</option>
+              <option value="openrouter-3">OpenRouter - LLaMA 3.1 8B #3</option>
+            </optgroup>
+            <optgroup label="OpenAI (Premium)">
+              <option value="openai-1">OpenAI - GPT-4o Mini #1</option>
+              <option value="openai-2">OpenAI - GPT-4o Mini #2</option>
+              <option value="openai-3">OpenAI - GPT-4o Mini #3</option>
+            </optgroup>
+          </select>
+          <button class="send-btn" id="sendBtn">↑</button>
+        </div>
+        <div class="attached-file" id="attachedFile" style="display: none;">
+          <span class="file-info" id="fileInfo"></span>
+          <button class="remove-file-btn" id="removeFileBtn">✕</button>
         </div>
       </div>
-      <div class="input-footer">
-        HealthCone AI assists but does not replace professional medical care ·
-        Powered by <a href="https://bruno-gpt5.vercel.app" target="_blank" rel="noopener">Bruno-GPT5</a>
+    </div>
+
+    <!-- AI Image Studio Panel -->
+    <div class="image-studio" id="imageStudio">
+      <div class="studio-header">
+        <h2>🩺 Health Image Analysis</h2>
+        <button class="close-studio-btn" id="closeStudioBtn">✕</button>
+      </div>
+      <div class="studio-content">
+        <div class="studio-tabs">
+          <button class="tab-btn active" data-tab="generate">Generate</button>
+          <button class="tab-btn" data-tab="transform">Transform</button>
+        </div>
+        <div class="tab-content active" id="generateTab">
+          <div class="input-group">
+            <label>Health Image Prompt</label>
+            <textarea id="imagePrompt" placeholder="E.g. Human anatomy diagram, healthy meal plan visual..." rows="4"></textarea>
+          </div>
+          <div class="input-group">
+            <label>Style</label>
+            <select id="imageStyle">
+              <option value="medical-diagram">Medical Diagram</option>
+              <option value="photorealistic">Photorealistic</option>
+              <option value="infographic">Health Infographic</option>
+              <option value="illustration">Medical Illustration</option>
+              <option value="watercolor">Watercolor</option>
+              <option value="sketch">Pencil Sketch</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Platform</label>
+            <select id="imagePlatform">
+              <option value="stable-diffusion">Stable Diffusion</option>
+              <option value="deepdream">Deep Dream Generator</option>
+              <option value="artbreeder">Artbreeder</option>
+            </select>
+          </div>
+          <button class="generate-btn" id="generateImageBtn">🩺 Generate Health Image</button>
+        </div>
+        <div class="tab-content" id="transformTab">
+          <div class="upload-area" id="uploadArea">
+            <div class="upload-icon">📸</div>
+            <p>Drop a health image here or click to upload</p>
+            <input type="file" id="transformImageInput" accept="image/*" style="display: none;">
+          </div>
+          <div class="preview-area" id="previewArea" style="display: none;">
+            <img id="previewImage" alt="Preview">
+            <button class="remove-preview-btn" id="removePreviewBtn">✕</button>
+          </div>
+          <div class="input-group">
+            <label>Transform Style</label>
+            <select id="transformStyle">
+              <option value="medical-diagram">Medical Diagram</option>
+              <option value="infographic">Infographic</option>
+              <option value="van-gogh">Artistic</option>
+              <option value="cartoon">Illustrated</option>
+              <option value="pop-art">Educational Chart</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Platform</label>
+            <select id="transformPlatform">
+              <option value="prisma">Prisma AI</option>
+              <option value="deepdream">Deep Dream Generator</option>
+              <option value="artbreeder">Artbreeder</option>
+            </select>
+          </div>
+          <button class="generate-btn" id="transformImageBtn" disabled>Transform Image</button>
+        </div>
+        <div class="results-area" id="resultsArea" style="display: none;">
+          <h3>Generated Result</h3>
+          <div class="result-image-container">
+            <img id="resultImage" alt="Generated Image">
+          </div>
+          <div class="result-actions">
+            <button class="action-btn" id="downloadResultBtn">💾 Download</button>
+            <button class="action-btn" id="insertChatBtn">💬 Insert to Chat</button>
+            <button class="action-btn" id="newGenerationBtn">🔄 New Generation</button>
+          </div>
+        </div>
+        <div class="platform-links">
+          <h4>Health Resources</h4>
+          <div class="link-grid">
+            <a href="https://health-cone.vercel.app/" target="_blank" class="platform-link"><span>🏥</span> HealthCone Home</a>
+            <a href="https://health-cone.vercel.app/features.html" target="_blank" class="platform-link"><span>⚡</span> Features</a>
+            <a href="https://health-cone.vercel.app/about.html" target="_blank" class="platform-link"><span>ℹ️</span> About</a>
+            <a href="https://health-cone.vercel.app/admin.html" target="_blank" class="platform-link"><span>⚙️</span> Admin</a>
+          </div>
+        </div>
+        <div class="studio-footer">
+          <div class="studio-thanks">HealthCone — Powered by <strong>BRU Companies Limited</strong></div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
 
-<script>
-// ── STATE ──────────────────────────────────────────────────────────────────
-let chatSessions   = [];
-let currentMsgs    = [];   // { role: 'user'|'assistant', content: '...' }
-let currentSessId  = null;
-let isLoading      = false;
-
-// Load saved sessions from localStorage
-try {
-  chatSessions = JSON.parse(localStorage.getItem('hc_sessions') || '[]');
-} catch (_) {
-  chatSessions = [];
-}
-
-renderHistory();
-
-// ── HELPERS ────────────────────────────────────────────────────────────────
-function getModel() {
-  return document.getElementById('modelSelect').value;
-}
-
-function syncModel(val) {
-  document.getElementById('modelSelect').value = val;
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 140) + 'px';
-}
-
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
-function sendSuggestion(text) {
-  const inp = document.getElementById('msgInput');
-  inp.value = text;
-  autoResize(inp);
-  sendMessage();
-}
-
-function toggleMenu() {
-  document.getElementById('mobileMenu').classList.toggle('open');
-}
-
-// ── FORMAT MARKDOWN-LIKE TEXT → SAFE HTML ──────────────────────────────────
-function formatMessage(raw) {
-  // Escape HTML entities first
-  let t = raw
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  // Code blocks (``` ```)
-  t = t.replace(/```[\w]*\n?([\s\S]*?)```/g, (_, code) =>
-    `<pre style="background:rgba(0,0,0,0.3);border-radius:8px;padding:0.8rem 1rem;overflow-x:auto;margin:0.5rem 0"><code style="color:var(--cyan);font-family:monospace;font-size:0.84em">${code.trim()}</code></pre>`
-  );
-
-  // Inline code
-  t = t.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-
-  // Bold
-  t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  t = t.replace(/__(.+?)__/g,     '<strong>$1</strong>');
-
-  // Italic
-  t = t.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
-  t = t.replace(/_([^_\n]+)_/g,   '<em>$1</em>');
-
-  // Headings (### ## #)
-  t = t.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-  t = t.replace(/^## (.+)$/gm,  '<h3>$1</h3>');
-  t = t.replace(/^# (.+)$/gm,   '<h3>$1</h3>');
-
-  // Horizontal rule
-  t = t.replace(/^---+$/gm, '<hr/>');
-
-  // Unordered lists
-  t = t.replace(/^[-*•] (.+)$/gm, '<li>$1</li>');
-  t = t.replace(/(<li>.*?<\/li>\n?)+/gs, match => `<ul>${match}</ul>`);
-
-  // Ordered lists
-  t = t.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-
-  // Line breaks → <br>
-  t = t.replace(/\n\n/g, '<br/><br/>');
-  t = t.replace(/\n/g, '<br/>');
-
-  return t;
-}
-
-// ── APPEND A BUBBLE ────────────────────────────────────────────────────────
-function appendMessage(role, text, isError = false) {
-  const container = document.getElementById('messages');
-
-  const wrap = document.createElement('div');
-  wrap.className = `msg ${role}` + (isError ? ' msg-error' : '');
-
-  const avatarText = role === 'ai' ? 'HC' : 'YOU';
-  wrap.innerHTML = `
-    <div class="msg-avatar">${avatarText}</div>
-    <div class="msg-bubble">${role === 'ai' ? formatMessage(text) : escapeHtml(text)}</div>
-  `;
-
-  container.appendChild(wrap);
-  container.scrollTop = container.scrollHeight;
-}
-
-function escapeHtml(t) {
-  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// ── TYPING INDICATOR ───────────────────────────────────────────────────────
-function showTyping() {
-  const id = 'typing_' + Date.now();
-  const container = document.getElementById('messages');
-  const div = document.createElement('div');
-  div.className = 'msg ai';
-  div.id = id;
-  div.innerHTML = `
-    <div class="msg-avatar">HC</div>
-    <div class="typing-bubble">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
+    <!-- Rename Modal -->
+    <div class="modal" id="renameModal" style="display: none;">
+      <div class="modal-content">
+        <h3>Rename Chat</h3>
+        <input type="text" id="renameInput" placeholder="Enter new chat name..." maxlength="50">
+        <div class="modal-buttons">
+          <button class="modal-btn cancel-btn" id="cancelRenameBtn">Cancel</button>
+          <button class="modal-btn save-btn" id="saveRenameBtn">Save</button>
+        </div>
+      </div>
     </div>
-  `;
-  container.appendChild(div);
-  container.scrollTop = container.scrollHeight;
-  return id;
-}
 
-function removeTyping(id) {
-  const el = document.getElementById(id);
-  if (el) el.remove();
-}
+    <!-- All Chats Viewer -->
+    <div class="all-chats-viewer" id="allChatsViewer" style="display: none;">
+      <div class="all-chats-header">
+        <button class="back-btn" id="backFromAllChats">← Back</button>
+        <h2>All Health Consultations</h2>
+        <div class="chats-count" id="chatsCount">0 chats</div>
+      </div>
+      <div class="all-chats-content" id="allChatsContent"></div>
+    </div>
+  </div>
 
-// ── SEND MESSAGE ───────────────────────────────────────────────────────────
-async function sendMessage() {
-  const input = document.getElementById('msgInput');
-  const text  = input.value.trim();
-  if (!text || isLoading) return;
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  // Remove welcome screen on first message
-  const welcome = document.getElementById('welcomeScreen');
-  if (welcome) welcome.remove();
-
-  // Build message and update UI
-  currentMsgs.push({ role: 'user', content: text });
-  appendMessage('user', text);
-  input.value = '';
-  input.style.height = 'auto';
-
-  const typingId = showTyping();
-  isLoading = true;
-  document.getElementById('sendBtn').disabled = true;
-
-  try {
-    const res = await fetch('https://health-cone-backend.vercel.app/api/chat', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        messages: currentMsgs,
-        model:    getModel(),
-      }),
-    });
-
-    removeTyping(typingId);
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      // Server returned an error
-      const errMsg = data.error || 'Something went wrong. Please try again.';
-      appendMessage('ai', '⚠️ ' + errMsg, true);
-    } else {
-      // Our backend always returns { reply: '...' }
-      const reply = data.reply || 'I received an empty response. Please try again.';
-      currentMsgs.push({ role: 'assistant', content: reply });
-      appendMessage('ai', reply);
-      saveSession(text);
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f4f9f4;
+      --bg-tertiary: #e8f5e8;
+      --text-primary: #1a2e1a;
+      --text-secondary: #4a6741;
+      --border-color: #c8e0c8;
+      --hover-bg: #ebf5eb;
+      --input-bg: #ffffff;
+      --shadow: rgba(34, 85, 34, 0.12);
+      --danger: #dc3545;
+      --accent: #2e7d32;
+      --accent-light: #43a047;
+      --accent-soft: #c8e6c9;
+      --code-bg: #f1f8f1;
+      --code-border: #a5d6a7;
+      --success: #28a745;
+      --teal: #00796b;
+      --orange: #e65100;
+      --warning: #fff8e1;
+      --warning-text: #5d4037;
+      --header-height: 60px;
     }
 
-  } catch (err) {
-    removeTyping(typingId);
-    appendMessage('ai', '⚠️ Network error — please check your connection and try again.', true);
-    console.error('Chat fetch error:', err);
-  }
+    [data-theme="dark"] {
+      --bg-primary: #0f1f0f;
+      --bg-secondary: #1a2e1a;
+      --bg-tertiary: #243624;
+      --text-primary: #e8f5e8;
+      --text-secondary: #a5c8a5;
+      --border-color: #2e4d2e;
+      --hover-bg: #1e351e;
+      --input-bg: #1a2e1a;
+      --shadow: rgba(0, 255, 0, 0.06);
+      --danger: #ff4d4d;
+      --accent: #66bb6a;
+      --accent-light: #81c784;
+      --accent-soft: #1b3a1b;
+      --code-bg: #0d1f0d;
+      --code-border: #2e5d2e;
+      --success: #3fb950;
+      --teal: #26a69a;
+      --orange: #ff8f00;
+      --warning: #2e2000;
+      --warning-text: #ffcc80;
+    }
 
-  isLoading = false;
-  document.getElementById('sendBtn').disabled = false;
-  document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
-}
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      height: 100vh;
+      overflow: hidden;
+      padding-top: var(--header-height);
+      transition: background 0.3s, color 0.3s;
+    }
 
-// ── SESSION MANAGEMENT ─────────────────────────────────────────────────────
-function saveSession(firstMessage) {
-  if (!currentSessId) {
-    currentSessId = String(Date.now());
-    const title = firstMessage.length > 42
-      ? firstMessage.slice(0, 42) + '…'
-      : firstMessage;
-    chatSessions.unshift({ id: currentSessId, title, messages: [], ts: Date.now() });
-  }
-  const sess = chatSessions.find(s => s.id === currentSessId);
-  if (sess) sess.messages = [...currentMsgs];
+    /* =====================
+       SITE HEADER / NAV
+    ===================== */
+    .site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--header-height);
+      background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 50%, #00695c 100%);
+      z-index: 10000;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.25);
+    }
 
-  // Keep only the 30 most recent sessions
-  if (chatSessions.length > 30) chatSessions = chatSessions.slice(0, 30);
+    .header-inner {
+      max-width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      gap: 16px;
+    }
 
-  try {
-    localStorage.setItem('hc_sessions', JSON.stringify(chatSessions));
-  } catch (_) { /* storage full — silently ignore */ }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      margin-right: 16px;
+    }
 
-  renderHistory();
-}
+    .logo-icon { font-size: 24px; }
 
-function newChat() {
-  currentMsgs   = [];
-  currentSessId = null;
+    .logo-text {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+      white-space: nowrap;
+    }
 
-  const container = document.getElementById('messages');
-  container.innerHTML = `
-    <div class="welcome" id="welcomeScreen">
-      <div class="welcome-icon">🏥</div>
-      <h2>HealthCone AI Assistant</h2>
-      <p>Powered by Bruno-GPT5 — ask anything about heart health, HealthCone features, wellness tips, or emergency guidance.</p>
-      <div class="suggestion-chips">
-        <div class="chip" onclick="sendSuggestion('What is HealthCone and how does it work?')">What is HealthCone?</div>
-        <div class="chip" onclick="sendSuggestion('What heart rate is considered dangerous?')">Dangerous heart rate?</div>
-        <div class="chip" onclick="sendSuggestion('What should I do during a cardiac emergency?')">Cardiac emergency steps</div>
-        <div class="chip" onclick="sendSuggestion('How does HealthCone detect heart problems?')">How does detection work?</div>
-        <div class="chip" onclick="sendSuggestion('What are tips for a healthier heart?')">Heart health tips</div>
-        <div class="chip" onclick="sendSuggestion('How fast does HealthCone alert a hospital?')">Alert speed?</div>
-      </div>
-    </div>
-  `;
-  renderHistory();
-}
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+    }
 
-function loadSession(id) {
-  const sess = chatSessions.find(s => s.id === id);
-  if (!sess) return;
+    .nav-link {
+      padding: 8px 14px;
+      text-decoration: none;
+      color: rgba(255,255,255,0.85);
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
 
-  currentSessId = id;
-  currentMsgs   = [...(sess.messages || [])];
+    .nav-link:hover {
+      background: rgba(255,255,255,0.15);
+      color: #ffffff;
+    }
 
-  const container = document.getElementById('messages');
-  container.innerHTML = '';
-  currentMsgs.forEach(m =>
-    appendMessage(m.role === 'user' ? 'user' : 'ai', m.content)
-  );
-  container.scrollTop = container.scrollHeight;
-  renderHistory();
-}
+    .nav-link.active {
+      background: rgba(255,255,255,0.2);
+      color: #ffffff;
+      font-weight: 600;
+    }
 
-function renderHistory() {
-  const hist = document.getElementById('chatHistory');
-  hist.innerHTML = '';
-  chatSessions.forEach(s => {
-    const div = document.createElement('div');
-    div.className = 'history-item' + (s.id === currentSessId ? ' active' : '');
-    div.textContent = s.title;
-    div.title = s.title;
-    div.onclick = () => loadSession(s.id);
-    hist.appendChild(div);
-  });
-}
-</script>
+    .nav-admin {
+      margin-left: auto;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .nav-admin:hover {
+      background: rgba(255,255,255,0.25);
+    }
+
+    .header-menu-btn {
+      display: none;
+      background: rgba(255,255,255,0.15);
+      border: none;
+      color: white;
+      font-size: 20px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: auto;
+    }
+
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      background: #1b5e20;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      padding: 8px 0;
+    }
+
+    .mobile-nav.open { display: flex; }
+
+    .mobile-nav-link {
+      padding: 12px 24px;
+      text-decoration: none;
+      color: rgba(255,255,255,0.9);
+      font-size: 15px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .mobile-nav-link:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* =====================
+       LAYOUT
+    ===================== */
+    .container {
+      display: flex;
+      height: calc(100vh - var(--header-height));
+      position: relative;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 280px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      transition: all 0.3s;
+    }
+
+    .sidebar-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #1b5e20, #2e7d32);
+    }
+
+    .sidebar-title {
+      font-family: 'Fraunces', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-logo { font-size: 20px; }
+
+    .theme-toggle {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      padding: 6px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .theme-toggle:hover { background: rgba(255,255,255,0.3); }
+
+    .new-chat-btn, .view-all-chats-btn {
+      margin: 8px 16px;
+      padding: 11px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-primary);
+      transition: all 0.2s;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .new-chat-btn:hover, .view-all-chats-btn:hover {
+      background: var(--hover-bg);
+      border-color: var(--accent);
+      transform: translateY(-1px);
+    }
+
+    .image-gen-btn {
+      margin: 0 16px 8px;
+      padding: 11px;
+      background: linear-gradient(135deg, var(--teal), var(--accent));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .image-gen-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+    .search-box { margin: 0 16px 12px; }
+
+    .search-box input {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    /* Cloud Sync */
+    .email-section {
+      padding: 10px 12px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 6px;
+    }
+
+    .email-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .email-toggle:hover { background: var(--hover-bg); }
+    .email-toggle-icon { font-size: 16px; }
+    .email-toggle-text { flex: 1; font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+
+    .mode-badge {
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .mode-badge.guest { background: #6b7280; }
+
+    .email-input-area { margin-top: 8px; display: none; }
+    .email-input-area.active { display: block; }
+
+    .email-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--input-bg);
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      outline: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .sync-login-btn {
+      width: 100%;
+      padding: 9px 12px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .sync-login-btn:hover { opacity: 0.9; }
+    .sync-login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding: 3px 6px;
+      background: var(--bg-tertiary);
+      border-radius: 6px;
+    }
+    .sync-status.synced { color: var(--success); background: rgba(40,167,69,0.1); }
+    .sync-status.syncing { color: var(--orange); background: rgba(230,81,0,0.1); }
+    .sync-status.error { color: var(--danger); background: rgba(220,53,69,0.1); }
+
+    .chat-list { flex: 1; overflow-y: auto; padding: 0 12px; }
+
+    .chat-item {
+      padding: 10px 12px;
+      margin-bottom: 3px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 14px;
+      color: var(--text-primary);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chat-item:hover { background: var(--hover-bg); }
+    .chat-item.active { background: var(--accent-soft); font-weight: 500; }
+
+    .chat-item-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .chat-item-actions { display: flex; gap: 4px; opacity: 0; transition: opacity 0.2s; }
+    .chat-item:hover .chat-item-actions { opacity: 1; }
+
+    .rename-chat-item-btn, .delete-chat-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 3px 5px;
+      border-radius: 4px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .rename-chat-item-btn:hover { background: var(--accent); color: white; }
+    .delete-chat-btn:hover { background: var(--danger); color: white; }
+
+    /* Guidance */
+    .guidance-panel {
+      padding: 12px 14px;
+      margin: 0 12px 12px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .guidance-title { font-size: 12px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+
+    .guidance-content { display: flex; flex-direction: column; gap: 5px; }
+
+    .tip { font-size: 11px; color: var(--text-secondary); line-height: 1.4; }
+    .tip strong { color: var(--accent); font-weight: 600; }
+
+    .footer-info {
+      padding: 14px 16px;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .creator-info { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; }
+    .creator-info strong { color: var(--accent); font-weight: 700; }
+    .company-info { font-size: 10px; color: var(--text-secondary); opacity: 0.8; }
+    .thanks-info { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border-color); }
+
+    .footer-link {
+      font-size: 11px;
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity 0.2s;
+    }
+    .footer-link:hover { opacity: 0.8; text-decoration: underline; }
+
+    /* Main Chat */
+    .main-chat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-primary);
+      transition: all 0.3s;
+      position: relative;
+    }
+
+    .main-chat.studio-open { margin-right: 450px; }
+
+    .chat-header-container {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-secondary);
+    }
+
+    .chat-header {
+      font-family: 'Fraunces', serif;
+      font-size: 16px;
+      font-weight: 600;
+      flex: 1;
+      color: var(--text-primary);
+    }
+
+    .rename-chat-btn {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 5px 10px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+
+    .rename-chat-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+    .messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      padding-bottom: 80px;
+      scroll-behavior: smooth;
+    }
+
+    /* Welcome Screen */
+    .welcome-area {
+      text-align: center;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .welcome-icon { font-size: 64px; margin-bottom: 16px; animation: pulse 2s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .welcome-title {
+      font-family: 'Fraunces', serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .welcome-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    .quick-prompts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .quick-prompt-btn {
+      padding: 12px 14px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-align: left;
+    }
+
+    .quick-prompt-btn:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px var(--shadow);
+    }
+
+    .disclaimer-notice {
+      background: var(--warning);
+      color: var(--warning-text);
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 12px;
+      line-height: 1.5;
+      border: 1px solid #ffe082;
+      text-align: left;
+    }
+
+    [data-theme="dark"] .disclaimer-notice { border-color: #5d4037; }
+
+    /* Messages */
+    .message {
+      margin-bottom: 20px;
+      max-width: 800px;
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .message.user { margin-left: auto; }
+
+    .message-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+      margin-top: 18px;
+    }
+
+    .message:hover .message-actions { opacity: 1; }
+
+    .edit-message-btn, .copy-message-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 5px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .edit-message-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+    .copy-message-btn:hover { background: var(--success); color: white; border-color: var(--success); }
+    .copy-message-btn.copied { background: var(--success); color: white; border-color: var(--success); }
+
+    .message-header { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .message-content {
+      padding: 12px 16px;
+      border-radius: 12px;
+      line-height: 1.7;
+      font-size: 15px;
+      word-wrap: break-word;
+    }
+
+    .message.user .message-content {
+      background: var(--accent-soft);
+      border: 1px solid var(--border-color);
+    }
+
+    .message.assistant .message-content { background: var(--bg-secondary); }
+
+    .message-image { max-width: 300px; border-radius: 8px; margin-top: 8px; border: 1px solid var(--border-color); }
+
+    /* Disclaimer bar */
+    .disclaimer-bar {
+      position: absolute;
+      bottom: 72px;
+      left: 0; right: 0;
+      padding: 8px 20px;
+      background: var(--warning);
+      color: var(--warning-text);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+      z-index: 10;
+      border-top: 1px solid #ffe082;
+    }
+
+    [data-theme="dark"] .disclaimer-bar { border-color: #5d4037; }
+
+    /* Code Blocks */
+    .code-block-wrapper { margin: 10px 0; border-radius: 8px; overflow: hidden; border: 1px solid var(--code-border); }
+
+    .code-block-header {
+      background: var(--code-bg);
+      padding: 7px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--code-border);
+    }
+
+    .code-language { font-size: 11px; color: var(--text-secondary); font-weight: 600; text-transform: uppercase; }
+
+    .copy-code-btn {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+
+    .copy-code-btn:hover { background: var(--hover-bg); }
+    .copy-code-btn.copied { background: var(--success); color: white; border-color: var(--success); }
+
+    .code-block { background: var(--code-bg); padding: 14px; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 14px; line-height: 1.5; }
+    .code-block code { color: var(--text-primary); white-space: pre; }
+    .inline-code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-family: 'Consolas', monospace; font-size: 13px; border: 1px solid var(--code-border); }
+
+    /* Input Area */
+    .input-area {
+      padding: 16px 20px;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      position: relative;
+      z-index: 20;
+    }
+
+    .input-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--input-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 14px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .input-wrapper:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 4px 16px var(--shadow);
+    }
+
+    .attach-btn {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      margin-bottom: 6px;
+    }
+
+    .attach-btn:hover { background: var(--hover-bg); }
+
+    .input-wrapper textarea {
+      flex: 1;
+      padding: 8px;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: var(--text-primary);
+      max-height: 200px;
+      min-height: 24px;
+    }
+
+    .model-selector {
+      padding: 7px 10px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      outline: none;
+      max-width: 180px;
+      margin-bottom: 6px;
+    }
+
+    .send-btn {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.2s;
+      flex-shrink: 0;
+      margin-bottom: 6px;
+    }
+
+    .send-btn:hover:not(:disabled) { background: var(--accent-light); transform: translateY(-2px); }
+    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .attached-file {
+      max-width: 800px;
+      margin: 8px auto 0;
+      padding: 7px 12px;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .file-info { font-size: 13px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; }
+
+    .remove-file-btn {
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 3px 7px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+
+    /* Typing indicator */
+    .typing-indicator { display: inline-flex; gap: 4px; padding: 14px; }
+    .typing-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
+    .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+    .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-8px); }
+    }
+
+    /* Image Studio */
+    .image-studio {
+      position: fixed;
+      right: -450px; top: var(--header-height);
+      width: 450px;
+      height: calc(100vh - var(--header-height));
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border-color);
+      z-index: 200;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .image-studio.open { right: 0; }
+
+    .studio-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, var(--teal), var(--accent));
+    }
+
+    .studio-header h2 { color: white; font-size: 17px; margin: 0; font-family: 'Fraunces', serif; }
+
+    .close-studio-btn {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      font-size: 18px;
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .studio-content { flex: 1; overflow-y: auto; padding: 18px; padding-bottom: 65px; }
+
+    .studio-tabs { display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 2px solid var(--border-color); }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      color: var(--text-secondary);
+      margin-bottom: -2px;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .input-group { margin-bottom: 16px; }
+    .input-group label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+
+    .input-group textarea, .input-group select {
+      width: 100%;
+      padding: 10px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+    }
+
+    .input-group textarea { resize: vertical; min-height: 90px; }
+
+    .upload-area {
+      border: 2px dashed var(--border-color);
+      border-radius: 10px;
+      padding: 36px 20px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 18px;
+      transition: all 0.2s;
+    }
+
+    .upload-area:hover { border-color: var(--accent); background: var(--hover-bg); }
+    .upload-icon { font-size: 42px; margin-bottom: 10px; }
+    .upload-area p { color: var(--text-secondary); font-size: 14px; }
+
+    .preview-area { position: relative; margin-bottom: 18px; border-radius: 10px; overflow: hidden; }
+    .preview-area img { width: 100%; display: block; border-radius: 10px; }
+
+    .remove-preview-btn {
+      position: absolute;
+      top: 8px; right: 8px;
+      background: var(--danger);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 30px; height: 30px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .generate-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, var(--teal), var(--accent));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .generate-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px var(--shadow); }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .results-area { margin-top: 20px; padding-top: 20px; border-top: 2px solid var(--border-color); }
+    .results-area h3 { margin-bottom: 14px; font-size: 15px; }
+    .result-image-container { border-radius: 10px; overflow: hidden; margin-bottom: 14px; border: 1px solid var(--border-color); }
+    .result-image-container img { width: 100%; display: block; }
+
+    .result-actions { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+
+    .action-btn {
+      padding: 9px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover { background: var(--hover-bg); transform: translateY(-1px); }
+
+    .platform-links { margin-top: 28px; padding-top: 20px; border-top: 2px solid var(--border-color); }
+    .platform-links h4 { margin-bottom: 14px; font-size: 13px; color: var(--text-secondary); }
+    .link-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+
+    .platform-link {
+      padding: 10px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .platform-link:hover { background: var(--hover-bg); border-color: var(--accent); transform: translateY(-1px); }
+
+    .studio-footer {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 14px;
+      background: var(--bg-tertiary);
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+    }
+
+    .studio-thanks { font-size: 11px; color: var(--text-secondary); }
+    .studio-thanks strong { color: var(--accent); }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10001;
+    }
+
+    .modal-content {
+      background: var(--bg-primary);
+      padding: 24px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: 0 8px 24px var(--shadow);
+    }
+
+    .modal-content h3 { margin-bottom: 14px; font-size: 17px; font-family: 'Fraunces', serif; }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-family: 'DM Sans', sans-serif;
+      outline: none;
+      margin-bottom: 14px;
+    }
+
+    .modal-content input:focus { border-color: var(--accent); }
+
+    .modal-buttons { display: flex; gap: 8px; justify-content: flex-end; }
+
+    .modal-btn {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .cancel-btn { background: var(--bg-secondary); color: var(--text-primary); }
+    .save-btn { background: var(--accent); color: white; }
+
+    /* All Chats Viewer */
+    .all-chats-viewer {
+      position: fixed;
+      top: var(--header-height); left: 0; right: 0; bottom: 0;
+      background: var(--bg-primary);
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .all-chats-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 24px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .all-chats-header h2 { flex: 1; margin: 0; font-size: 20px; font-family: 'Fraunces', serif; }
+
+    .back-btn {
+      padding: 8px 14px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-primary);
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .chats-count {
+      padding: 5px 12px;
+      background: var(--accent);
+      color: white;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .all-chats-content { flex: 1; overflow-y: auto; padding: 20px; }
+
+    .chat-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .chat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px var(--shadow); border-color: var(--accent); }
+
+    .chat-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+    .chat-card-title { font-size: 16px; font-weight: 600; color: var(--text-primary); font-family: 'Fraunces', serif; }
+    .chat-card-date { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+    .chat-card-stats { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); }
+    .chat-card-preview { margin-top: 10px; font-size: 14px; color: var(--text-secondary); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .chat-card-actions { position: absolute; top: 18px; right: 18px; display: flex; gap: 6px; opacity: 0; transition: opacity 0.2s; }
+    .chat-card:hover .chat-card-actions { opacity: 1; }
+
+    .chat-card-btn {
+      padding: 6px 10px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+
+    .chat-card-btn:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+    .empty-chats { text-align: center; padding: 60px 20px; color: var(--text-secondary); }
+    .empty-chats-icon { font-size: 56px; margin-bottom: 14px; opacity: 0.5; }
+    .empty-chats-text { font-size: 17px; margin-bottom: 8px; font-family: 'Fraunces', serif; }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header-nav { display: none; }
+      .header-menu-btn { display: block; }
+      .site-header { height: auto; min-height: var(--header-height); }
+
+      .sidebar {
+        position: fixed;
+        left: -280px;
+        top: var(--header-height);
+        height: calc(100vh - var(--header-height));
+        z-index: 300;
+      }
+
+      .sidebar.open { left: 0; }
+
+      .image-studio { width: 100%; right: -100%; }
+      .main-chat.studio-open { margin-right: 0; }
+
+      .quick-prompts { grid-template-columns: 1fr; }
+    }
+  </style>
+
+  <script type="module">
+    const BACKEND_URL = 'https://multi-ai-backend.vercel.app/api/chat';
+
+    function buildSystemMessage() {
+      const chatHistory = chats.slice(0, 5).map(chat => ({
+        title: chat.title,
+        messageCount: chat.messages.length,
+        lastMessage: chat.messages[chat.messages.length - 1]?.content?.slice(0, 100)
+      }));
+
+      return {
+        role: 'system',
+        content: `You are HealthCone AI, an advanced health and wellness AI assistant integrated into the HealthCone platform (https://health-cone.vercel.app). You were built by BRU Companies Limited (created by Ineza Aime Bruno). You are specialized in healthcare information, medical knowledge, wellness advice, and health education.
+
+CORE IDENTITY:
+- Name: HealthCone AI
+- Platform: HealthCone (https://health-cone.vercel.app)
+- Specialty: Health information, medical education, wellness coaching, symptom awareness, nutrition, mental health, and preventive care
+- Creator: Ineza Aime Bruno — BRU Companies Limited
+
+KEY HEALTH PLATFORM LINKS (share these when relevant):
+- 🏠 Homepage: https://health-cone.vercel.app/
+- ⚡ Features: https://health-cone.vercel.app/features.html
+- ℹ️ About: https://health-cone.vercel.app/about.html
+- 🤖 AI Assistant: https://health-cone.vercel.app/assistant.html
+- ⚙️ Admin: https://health-cone.vercel.app/admin.html
+
+YOUR HEALTH EXPERTISE COVERS:
+1. 🩺 Symptoms & Medical Conditions — explain symptoms, possible conditions, when to see a doctor
+2. 💊 Medications & Treatments — drug information, dosage guidance, side effects (always advise consulting a pharmacist/doctor)
+3. 🥗 Nutrition & Diet — healthy eating, dietary plans, food benefits, meal planning
+4. 🏃 Fitness & Exercise — workout tips, exercise benefits, physical health guidance
+5. 🧠 Mental Health & Wellness — stress management, anxiety, depression awareness, mindfulness
+6. 💤 Sleep Health — sleep hygiene tips, insomnia guidance, sleep disorders
+7. 👶 Pediatric Health — children's health, development milestones, parenting health tips
+8. 👴 Elderly Care — senior health, chronic disease management, aging well
+9. 🦠 Infectious Diseases — prevention, symptoms, treatment basics
+10. 🧬 Preventive Care — screenings, vaccinations, health checks
+11. Mostly give some emojis and you know KINYARWANDA
+
+CRITICAL MEDICAL DISCLAIMER — Always include this when giving health advice:
+⚕️ Always consult a qualified healthcare professional (doctor, pharmacist, or specialist) before making any medical decisions, starting medications, or changing treatments. HealthCone AI does not replace professional medical advice, diagnosis, or treatment.
+
+HOW TO RESPOND:
+- Be empathetic, clear, and evidence-based in your responses
+- Use simple language to explain complex medical concepts
+- Always recommend professional consultation for diagnosis or treatment
+- Provide practical, actionable wellness advice
+- When discussing symptoms, mention red-flag symptoms that require immediate medical attention
+- Share relevant HealthCone links when guiding users to more resources
+- End each response with a helpful follow-up question to guide the conversation
+- Format responses clearly with sections when explaining complex health topics
+
+SAFETY RULES:
+- NEVER diagnose specific conditions — say "this COULD be related to..." not "you HAVE..."
+- NEVER recommend specific prescription medications or dosages
+- ALWAYS advise emergency services (call 911/112) for life-threatening symptoms
+- NEVER replace or discourage professional medical consultation
+- For mental health crises, provide crisis hotline information
+
+Recent user chat context for continuity:
+${JSON.stringify(chatHistory, null, 2)}
+
+Remember: You are HealthCone AI — a trusted, empathetic, and knowledgeable health information companion.`
+      };
+    }
+
+    let chats = JSON.parse(localStorage.getItem('healthcone_chats')) || [];
+    let currentChatId = null;
+    let isStreaming = false;
+    let currentAttachedFile = null;
+
+    // ========== CLOUD SYNC MANAGER ==========
+    class SyncManager {
+      constructor() {
+        this.email = localStorage.getItem('syncEmail') || '';
+        this.passwordHash = localStorage.getItem('syncPasswordHash') || '';
+        this.mode = (this.email && this.passwordHash) ? 'cloud' : 'guest';
+        this.syncInterval = null;
+        this.syncDebounce = null;
+        this.init();
+      }
+
+      async hashPassword(password) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2,'0')).join('');
+      }
+
+      init() {
+        const toggle = document.getElementById('emailToggle');
+        const inputArea = document.getElementById('emailInputArea');
+        const emailInput = document.getElementById('userEmail');
+        const passwordInput = document.getElementById('userPassword');
+        const loginBtn = document.getElementById('syncLoginBtn');
+        const modeBadge = document.getElementById('modeBadge');
+
+        if (this.email && this.passwordHash) {
+          emailInput.value = this.email;
+          passwordInput.value = '••••••••';
+          inputArea.classList.add('active');
+          modeBadge.textContent = 'Cloud';
+          modeBadge.classList.remove('guest');
+          loginBtn.textContent = '🔓 Logout';
+          this.updateStatus('☁️', 'Logged in - Auto-sync enabled', 'synced');
+          this.startAutoSync();
+        }
+
+        toggle.addEventListener('click', () => inputArea.classList.toggle('active'));
+
+        loginBtn.addEventListener('click', async () => {
+          if (this.mode === 'cloud') this.logout();
+          else await this.login();
+        });
+
+        passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') loginBtn.click(); });
+        emailInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') passwordInput.focus(); });
+      }
+
+      async login() {
+        const emailInput = document.getElementById('userEmail');
+        const passwordInput = document.getElementById('userPassword');
+        const loginBtn = document.getElementById('syncLoginBtn');
+        const modeBadge = document.getElementById('modeBadge');
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (!email || !this.isValidEmail(email)) { this.updateStatus('❌', 'Invalid email address', 'error'); return; }
+        if (!password || password.length < 4) { this.updateStatus('❌', 'Password must be at least 4 characters', 'error'); return; }
+
+        loginBtn.disabled = true;
+        this.updateStatus('🔄', 'Logging in...', 'syncing');
+
+        try {
+          const passwordHash = await this.hashPassword(password);
+          const response = await fetch(`https://multi-ai-backend.vercel.app/api/load-user-data?email=${encodeURIComponent(email)}`);
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.data) {
+              if (result.data.passwordHash !== passwordHash) { this.updateStatus('❌', 'Wrong password!', 'error'); loginBtn.disabled = false; return; }
+              this.email = email; this.passwordHash = passwordHash;
+              localStorage.setItem('syncEmail', email); localStorage.setItem('syncPasswordHash', passwordHash);
+              this.mode = 'cloud';
+              if (result.data.chats) { chats = result.data.chats; localStorage.setItem('healthcone_chats', JSON.stringify(chats)); }
+              if (result.data.currentChatId) { currentChatId = result.data.currentChatId; }
+              if (result.data.theme) localStorage.setItem('theme', result.data.theme);
+              if (result.data.selectedModel) localStorage.setItem('selectedModel', result.data.selectedModel);
+            } else {
+              this.email = email; this.passwordHash = passwordHash;
+              localStorage.setItem('syncEmail', email); localStorage.setItem('syncPasswordHash', passwordHash);
+              this.mode = 'cloud';
+              await this.saveToCloud();
+            }
+            modeBadge.textContent = 'Cloud';
+            modeBadge.classList.remove('guest');
+            loginBtn.textContent = '🔓 Logout';
+            loginBtn.disabled = false;
+            this.updateStatus('✅', 'Logged in!', 'synced');
+            this.startAutoSync();
+            setTimeout(() => location.reload(), 500);
+          } else throw new Error('Server error');
+        } catch (error) {
+          this.updateStatus('❌', 'Login failed - try again', 'error');
+          loginBtn.disabled = false;
+        }
+      }
+
+      logout() {
+        const emailInput = document.getElementById('userEmail');
+        const passwordInput = document.getElementById('userPassword');
+        const loginBtn = document.getElementById('syncLoginBtn');
+        const modeBadge = document.getElementById('modeBadge');
+        this.email = ''; this.passwordHash = '';
+        localStorage.removeItem('syncEmail'); localStorage.removeItem('syncPasswordHash');
+        this.mode = 'guest';
+        emailInput.value = ''; passwordInput.value = '';
+        modeBadge.textContent = 'Guest'; modeBadge.classList.add('guest');
+        loginBtn.textContent = '🔐 Login & Sync';
+        this.stopAutoSync();
+        this.updateStatus('🔒', 'Logged out - saving locally', '');
+      }
+
+      isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+
+      updateStatus(icon, text, type = '') {
+        const status = document.getElementById('syncStatus');
+        if (status) { status.innerHTML = `<span>${icon}</span><span>${text}</span>`; status.className = `sync-status ${type}`; }
+      }
+
+      startAutoSync() {
+        if (this.syncInterval) return;
+        this.syncInterval = setInterval(() => { if (this.email && this.passwordHash && this.mode === 'cloud') this.saveToCloud(true); }, 15000);
+      }
+
+      stopAutoSync() { if (this.syncInterval) { clearInterval(this.syncInterval); this.syncInterval = null; } }
+
+      async saveToCloud(silent = false) {
+        if (!this.email || !this.passwordHash || this.mode !== 'cloud') return;
+        if (!silent) this.updateStatus('🔄', 'Syncing...', 'syncing');
+        try {
+          const response = await fetch('https://multi-ai-backend.vercel.app/api/save-user-data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: this.email, data: { passwordHash: this.passwordHash, chats, currentChatId, theme: localStorage.getItem('theme'), selectedModel: localStorage.getItem('selectedModel'), lastSync: new Date().toISOString() } })
+          });
+          if (response.ok && !silent) { this.updateStatus('✅', 'Synced to cloud', 'synced'); setTimeout(() => this.updateStatus('☁️', 'Auto-sync enabled', 'synced'), 2000); }
+        } catch (error) { if (!silent) this.updateStatus('⚠️', 'Sync failed - saving locally', 'error'); }
+      }
+
+      triggerSync() {
+        if (this.mode !== 'cloud' || !this.email || !this.passwordHash) return;
+        clearTimeout(this.syncDebounce);
+        this.syncDebounce = setTimeout(() => this.saveToCloud(true), 2000);
+      }
+    }
+
+    const syncManager = new SyncManager();
+
+    // ========== ELEMENTS ==========
+    const themeToggle = document.getElementById('themeToggle');
+    const newChatBtn = document.getElementById('newChatBtn');
+    const imageGenBtn = document.getElementById('imageGenBtn');
+    const searchInput = document.getElementById('searchInput');
+    const chatList = document.getElementById('chatList');
+    const chatHeader = document.getElementById('chatHeader');
+    const messagesContainer = document.getElementById('messagesContainer');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const modelSelector = document.getElementById('modelSelector');
+    const attachBtn = document.getElementById('attachBtn');
+    const fileInput = document.getElementById('fileInput');
+    const attachedFile = document.getElementById('attachedFile');
+    const fileInfo = document.getElementById('fileInfo');
+    const removeFileBtn = document.getElementById('removeFileBtn');
+    const mainChat = document.getElementById('mainChat');
+    const imageStudio = document.getElementById('imageStudio');
+    const closeStudioBtn = document.getElementById('closeStudioBtn');
+    const renameChatBtn = document.getElementById('renameChatBtn');
+    const renameModal = document.getElementById('renameModal');
+    const renameInput = document.getElementById('renameInput');
+    const cancelRenameBtn = document.getElementById('cancelRenameBtn');
+    const saveRenameBtn = document.getElementById('saveRenameBtn');
+    const allChatsViewer = document.getElementById('allChatsViewer');
+    const allChatsContent = document.getElementById('allChatsContent');
+    const chatsCount = document.getElementById('chatsCount');
+    const viewAllChatsBtn = document.getElementById('viewAllChatsBtn');
+    const backFromAllChats = document.getElementById('backFromAllChats');
+    const welcomeArea = document.getElementById('welcomeArea');
+    const headerMenuBtn = document.getElementById('headerMenuBtn');
+    const mobileNav = document.getElementById('mobileNav');
+
+    // Mobile nav toggle
+    headerMenuBtn.addEventListener('click', () => mobileNav.classList.toggle('open'));
+
+    // Quick prompt buttons
+    window.setPrompt = function(text) {
+      messageInput.value = text;
+      messageInput.focus();
+      if (!currentChatId) createNewChat();
+      autoResize();
+    };
+
+    // Theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    themeToggle.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      themeToggle.textContent = newTheme === 'dark' ? '☀️' : '🌙';
+    });
+
+    // Model
+    const savedModel = localStorage.getItem('selectedModel') || 'groq-1';
+    modelSelector.value = savedModel;
+    modelSelector.addEventListener('change', () => localStorage.setItem('selectedModel', modelSelector.value));
+
+    // Studio
+    imageGenBtn.addEventListener('click', () => { imageStudio.classList.toggle('open'); mainChat.classList.toggle('studio-open'); });
+    closeStudioBtn.addEventListener('click', () => { imageStudio.classList.remove('open'); mainChat.classList.remove('studio-open'); });
+
+    // All Chats
+    viewAllChatsBtn.addEventListener('click', showAllChats);
+    backFromAllChats.addEventListener('click', () => allChatsViewer.style.display = 'none');
+
+    function showAllChats() {
+      chatsCount.textContent = `${chats.length} chat${chats.length !== 1 ? 's' : ''}`;
+      allChatsContent.innerHTML = '';
+      if (chats.length === 0) {
+        allChatsContent.innerHTML = `<div class="empty-chats"><div class="empty-chats-icon">🏥</div><div class="empty-chats-text">No health consultations yet</div><div style="color:var(--text-secondary);font-size:14px">Start a new consultation to get started!</div></div>`;
+      } else {
+        const sortedChats = [...chats].sort((a, b) => {
+          const tA = a.messages[a.messages.length - 1]?.timestamp || 0;
+          const tB = b.messages[b.messages.length - 1]?.timestamp || 0;
+          return tB - tA;
+        });
+        sortedChats.forEach(chat => {
+          const messagesCount = chat.messages.filter(m => m.role !== 'system').length;
+          const userMessagesCount = chat.messages.filter(m => m.role === 'user').length;
+          const lastMessage = chat.messages.filter(m => m.role !== 'system').slice(-1)[0];
+          let preview = lastMessage ? (lastMessage.content || '').replace(/<[^>]*>/g, '').substring(0, 150) : '';
+          const date = new Date(chat.id);
+          const formattedDate = date.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit' });
+          const chatCard = document.createElement('div');
+          chatCard.className = 'chat-card';
+          chatCard.innerHTML = `<div class="chat-card-header"><div><div class="chat-card-title">${escapeHtml(chat.title)}</div><div class="chat-card-date">${formattedDate}</div></div><div class="chat-card-actions"><button class="chat-card-btn rename-btn">✏️</button><button class="chat-card-btn delete-btn">🗑️</button></div></div><div class="chat-card-stats"><span>💬 ${messagesCount} messages</span><span>👤 ${userMessagesCount} from you</span></div>${preview ? `<div class="chat-card-preview">${escapeHtml(preview)}</div>` : ''}`;
+          chatCard.addEventListener('click', (e) => { if (!e.target.classList.contains('chat-card-btn')) { loadChat(chat.id); allChatsViewer.style.display = 'none'; } });
+          chatCard.querySelector('.rename-btn').addEventListener('click', (e) => { e.stopPropagation(); renameInput.value = chat.title; renameModal.style.display = 'flex'; renameInput.focus(); renameInput.select(); renameInput.dataset.chatId = chat.id; });
+          chatCard.querySelector('.delete-btn').addEventListener('click', (e) => { e.stopPropagation(); if (confirm(`Delete "${chat.title}"?`)) { deleteChat(chat.id, e); showAllChats(); } });
+          allChatsContent.appendChild(chatCard);
+        });
+      }
+      allChatsViewer.style.display = 'flex';
+    }
+
+    // Rename
+    renameChatBtn.addEventListener('click', () => { if (!currentChatId) return; const chat = getCurrentChat(); if (chat) { renameInput.value = chat.title; renameModal.style.display = 'flex'; renameInput.focus(); renameInput.select(); } });
+    cancelRenameBtn.addEventListener('click', () => renameModal.style.display = 'none');
+    saveRenameBtn.addEventListener('click', () => {
+      const newTitle = renameInput.value.trim();
+      const chatId = renameInput.dataset.chatId || currentChatId;
+      if (newTitle && chatId) { updateChatTitle(chatId, newTitle); renameModal.style.display = 'none'; if (allChatsViewer.style.display === 'flex') showAllChats(); }
+    });
+    renameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveRenameBtn.click(); else if (e.key === 'Escape') cancelRenameBtn.click(); });
+    renameModal.addEventListener('click', (e) => { if (e.target === renameModal) renameModal.style.display = 'none'; });
+
+    // File Attachment
+    attachBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        currentAttachedFile = file;
+        fileInfo.innerHTML = `${file.type.startsWith('image/') ? '📷' : '📄'} ${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+        attachedFile.style.display = 'flex';
+      }
+    });
+    removeFileBtn.addEventListener('click', () => { currentAttachedFile = null; fileInput.value = ''; attachedFile.style.display = 'none'; });
+
+    // Image Studio tabs
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        tabBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(btn.dataset.tab + 'Tab').classList.add('active');
+      });
+    });
+
+    // Transform Image
+    const uploadArea = document.getElementById('uploadArea');
+    const transformImageInput = document.getElementById('transformImageInput');
+    const previewArea = document.getElementById('previewArea');
+    const previewImage = document.getElementById('previewImage');
+    const removePreviewBtn = document.getElementById('removePreviewBtn');
+    const transformImageBtn = document.getElementById('transformImageBtn');
+    const resultsArea = document.getElementById('resultsArea');
+    const resultImage = document.getElementById('resultImage');
+    const generateImageBtn = document.getElementById('generateImageBtn');
+
+    uploadArea.addEventListener('click', () => transformImageInput.click());
+    uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.style.borderColor = 'var(--accent)'; });
+    uploadArea.addEventListener('dragleave', () => uploadArea.style.borderColor = 'var(--border-color)');
+    uploadArea.addEventListener('drop', (e) => { e.preventDefault(); uploadArea.style.borderColor = 'var(--border-color)'; const file = e.dataTransfer.files[0]; if (file?.type.startsWith('image/')) handleTransformImage(file); });
+    transformImageInput.addEventListener('change', (e) => { if (e.target.files[0]) handleTransformImage(e.target.files[0]); });
+    removePreviewBtn.addEventListener('click', () => { previewArea.style.display = 'none'; uploadArea.style.display = 'block'; transformImageBtn.disabled = true; transformImageInput.value = ''; });
+
+    function handleTransformImage(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => { previewImage.src = e.target.result; uploadArea.style.display = 'none'; previewArea.style.display = 'block'; transformImageBtn.disabled = false; };
+      reader.readAsDataURL(file);
+    }
+
+    generateImageBtn.addEventListener('click', async () => {
+      const prompt = document.getElementById('imagePrompt').value.trim();
+      if (!prompt) { alert('Please enter a health image prompt'); return; }
+      generateImageBtn.disabled = true; generateImageBtn.textContent = '🩺 Generating...';
+      const style = document.getElementById('imageStyle').value;
+      const enhancedPrompt = `${prompt}, ${style}, medical illustration, educational, high quality, clean`;
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(enhancedPrompt)}?width=1024&height=1024&nologo=true&enhance=true`;
+      showGeneratedResult(imageUrl);
+      generateImageBtn.disabled = false; generateImageBtn.textContent = '🩺 Generate Health Image';
+    });
+
+    transformImageBtn.addEventListener('click', async () => {
+      const stylePrompts = { 'medical-diagram': 'medical diagram style, clinical illustration', 'infographic': 'health infographic style, educational', 'van-gogh': 'artistic, painterly', 'cartoon': 'health education cartoon', 'pop-art': 'educational chart style' };
+      const style = document.getElementById('transformStyle').value;
+      const prompt = `${stylePrompts[style] || 'artistic'}, high quality`;
+      const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&enhance=true&seed=${Date.now()}`;
+      showGeneratedResult(imageUrl);
+    });
+
+    function showGeneratedResult(imageUrl) { resultImage.src = imageUrl; resultsArea.style.display = 'block'; resultsArea.scrollIntoView({ behavior: 'smooth' }); }
+
+    document.getElementById('downloadResultBtn').addEventListener('click', () => { const link = document.createElement('a'); link.href = resultImage.src; link.download = `healthcone-${Date.now()}.png`; link.click(); });
+    document.getElementById('insertChatBtn').addEventListener('click', () => { if (!currentChatId) createNewChat(); const chat = getCurrentChat(); chat.messages.push({ role: 'assistant', content: '🩺 Health image generated:', image: resultImage.src }); saveChats(); renderMessages(chat.messages); imageStudio.classList.remove('open'); mainChat.classList.remove('studio-open'); });
+    document.getElementById('newGenerationBtn').addEventListener('click', () => { resultsArea.style.display = 'none'; document.getElementById('imagePrompt').value = ''; previewArea.style.display = 'none'; uploadArea.style.display = 'block'; transformImageBtn.disabled = true; });
+
+    // Chat Management
+    function createNewChat() {
+      const chat = { id: Date.now().toString(), title: 'New Health Consultation', messages: [], createdAt: new Date().toISOString() };
+      chats.unshift(chat);
+      saveChats();
+      loadChat(chat.id);
+      renderChatList();
+    }
+
+    function loadChat(chatId) {
+      currentChatId = chatId;
+      const chat = chats.find(c => c.id === chatId);
+      if (chat) {
+        chatHeader.textContent = chat.title;
+        if (welcomeArea) welcomeArea.style.display = chat.messages.filter(m => m.role !== 'system').length === 0 ? 'block' : 'none';
+        renderMessages(chat.messages);
+        renderChatList();
+      }
+    }
+
+    function deleteChat(chatId, event) {
+      event.stopPropagation();
+      const chat = chats.find(c => c.id === chatId);
+      if (!chat) return;
+      if (!confirm(`Delete "${chat.title}"?`)) return;
+      chats = chats.filter(c => c.id !== chatId);
+      saveChats();
+      if (currentChatId === chatId) { if (chats.length > 0) loadChat(chats[0].id); else createNewChat(); }
+      renderChatList();
+    }
+
+    function renameChatFromList(chatId, event) {
+      event.stopPropagation();
+      const chat = chats.find(c => c.id === chatId);
+      if (!chat) return;
+      const newTitle = prompt('Enter new consultation name:', chat.title);
+      if (newTitle?.trim()) updateChatTitle(chatId, newTitle.trim());
+    }
+
+    function saveChats() {
+      localStorage.setItem('healthcone_chats', JSON.stringify(chats));
+      if (syncManager?.mode === 'cloud') syncManager.triggerSync();
+    }
+
+    function getCurrentChat() { return chats.find(c => c.id === currentChatId); }
+
+    function updateChatTitle(chatId, title) {
+      const chat = chats.find(c => c.id === chatId);
+      if (chat) { chat.title = title.slice(0, 50); saveChats(); renderChatList(); if (currentChatId === chatId) chatHeader.textContent = chat.title; }
+    }
+
+    function formatContent(text) {
+      text = text.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, language, code) => {
+        const lang = language || 'code';
+        const escapedCode = escapeHtml(code.trim());
+        return `<div class="code-block-wrapper"><div class="code-block-header"><span class="code-language">${lang}</span><button class="copy-code-btn" onclick="copyCode(this, \`${escapedCode.replace(/`/g,'\\`')}\`)">📋 Copy</button></div><div class="code-block"><code>${escapedCode}</code></div></div>`;
+      });
+      text = text.replace(/`([^`]+)`/g, '<span class="inline-code">$1</span>');
+      text = text.replace(/\n/g, '<br>');
+      return text;
+    }
+
+    function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+
+    window.copyCode = function(button, code) {
+      const textarea = document.createElement('textarea'); textarea.innerHTML = code;
+      navigator.clipboard.writeText(textarea.value).then(() => { const orig = button.innerHTML; button.innerHTML = '✓ Copied!'; button.classList.add('copied'); setTimeout(() => { button.innerHTML = orig; button.classList.remove('copied'); }, 2000); });
+    };
+
+    function renderChatList(filter = '') {
+      const filteredChats = chats.filter(chat => chat.title.toLowerCase().includes(filter.toLowerCase()));
+      chatList.innerHTML = filteredChats.map(chat => `
+        <div class="chat-item ${chat.id === currentChatId ? 'active' : ''}" data-id="${chat.id}">
+          <div class="chat-item-title">🩺 ${escapeHtml(chat.title)}</div>
+          <div class="chat-item-actions">
+            <button class="rename-chat-item-btn" data-rename-id="${chat.id}" title="Rename">✏️</button>
+            <button class="delete-chat-btn" data-delete-id="${chat.id}" title="Delete">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+
+      document.querySelectorAll('.chat-item').forEach(item => {
+        item.addEventListener('click', (e) => { if (!e.target.classList.contains('delete-chat-btn') && !e.target.classList.contains('rename-chat-item-btn')) loadChat(item.dataset.id); });
+      });
+      document.querySelectorAll('.delete-chat-btn').forEach(btn => btn.addEventListener('click', (e) => deleteChat(btn.dataset.deleteId, e)));
+      document.querySelectorAll('.rename-chat-item-btn').forEach(btn => btn.addEventListener('click', (e) => renameChatFromList(btn.dataset.renameId, e)));
+    }
+
+    function renderMessages(messages) {
+      const filtered = messages.filter(msg => msg.role !== 'system');
+      if (welcomeArea) welcomeArea.style.display = filtered.length === 0 ? 'block' : 'none';
+
+      const chatMessages = messagesContainer.querySelector('#chatMessages');
+      if (chatMessages) chatMessages.remove();
+      const chatDiv = document.createElement('div');
+      chatDiv.id = 'chatMessages';
+
+      chatDiv.innerHTML = filtered.map((msg, index) => {
+        let content = formatContent(msg.content);
+        if (msg.image) content += `<br><img src="${msg.image}" class="message-image" alt="Attached image">`;
+        const actions = msg.role === 'user'
+          ? `<div class="message-actions"><button class="edit-message-btn" onclick="editMessage(${index})">✏️</button><button class="copy-message-btn" onclick="copyMessage(${index})">📋</button></div>`
+          : `<div class="message-actions"><button class="copy-message-btn" onclick="copyMessage(${index})">📋</button></div>`;
+        return `<div class="message ${msg.role}" data-index="${index}">${actions}<div><div class="message-header">${msg.role === 'user' ? '👤 You' : '🏥 HealthCone AI'}</div><div class="message-content">${content}</div></div></div>`;
+      }).join('');
+
+      messagesContainer.appendChild(chatDiv);
+      scrollToBottom();
+    }
+
+    function addMessage(role, content, image = null) {
+      const chat = getCurrentChat();
+      if (chat) { const message = { role, content }; if (image) message.image = image; chat.messages.push(message); saveChats(); renderMessages(chat.messages); }
+    }
+
+    function updateLastMessage(content) {
+      const chat = getCurrentChat();
+      if (chat && chat.messages.length > 0) { chat.messages[chat.messages.length - 1].content = content; saveChats(); renderMessages(chat.messages); }
+    }
+
+    function scrollToBottom() { messagesContainer.scrollTop = messagesContainer.scrollHeight; }
+
+    window.editMessage = function(index) {
+      const chat = getCurrentChat();
+      if (!chat) return;
+      const messages = chat.messages.filter(msg => msg.role !== 'system');
+      const message = messages[index];
+      if (message?.role === 'user') {
+        messageInput.value = message.content;
+        messageInput.focus();
+        chat.messages = chat.messages.slice(0, chat.messages.indexOf(message));
+        saveChats();
+        renderMessages(chat.messages);
+        messageInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    };
+
+    window.copyMessage = function(index) {
+      const chat = getCurrentChat();
+      if (!chat) return;
+      const messages = chat.messages.filter(msg => msg.role !== 'system');
+      const message = messages[index];
+      if (message) {
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = message.content;
+        navigator.clipboard.writeText(tempDiv.textContent || '').then(() => {
+          const copyBtn = document.querySelector(`.message[data-index="${index}"] .copy-message-btn`);
+          if (copyBtn) { const orig = copyBtn.innerHTML; copyBtn.innerHTML = '✓'; copyBtn.classList.add('copied'); setTimeout(() => { copyBtn.innerHTML = orig; copyBtn.classList.remove('copied'); }, 2000); }
+        });
+      }
+    };
+
+    async function fileToBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(reader.result); reader.onerror = reject; reader.readAsDataURL(file); }); }
+    async function readTextFile(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = (e) => resolve(e.target.result); reader.onerror = reject; reader.readAsText(file); }); }
+
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if ((!message && !currentAttachedFile) || isStreaming) return;
+      if (!currentChatId) createNewChat();
+
+      let userMessage = message || 'Please analyze this health file';
+      let imageData = null;
+
+      if (currentAttachedFile) {
+        if (currentAttachedFile.type.startsWith('image/')) {
+          imageData = await fileToBase64(currentAttachedFile);
+          userMessage = `${message || ''}\n\n[📷 Health image attached: ${currentAttachedFile.name}]\n\nPlease help me understand what this health-related image shows, or describe what you see in the context of healthcare.`.trim();
+        } else if (currentAttachedFile.type === 'text/plain' || currentAttachedFile.name.endsWith('.txt') || currentAttachedFile.name.endsWith('.md')) {
+          const fileContent = await readTextFile(currentAttachedFile);
+          userMessage = `${message || 'Please analyze this health document'}\n\n--- FILE: ${currentAttachedFile.name} ---\n${fileContent}\n--- END FILE ---\n\nPlease analyze this health document and provide relevant health insights.`;
+        } else {
+          userMessage = `${message || 'I have a health document'}\n\n[📄 File: ${currentAttachedFile.name} — ${(currentAttachedFile.size/1024).toFixed(1)} KB]\n\nPlease describe what health information I can extract from this type of file.`;
+        }
+      }
+
+      addMessage('user', userMessage, imageData);
+      messageInput.value = ''; currentAttachedFile = null; fileInput.value = ''; attachedFile.style.display = 'none';
+      autoResize();
+
+      const chat = getCurrentChat();
+      if (chat.messages.filter(m => m.role === 'user').length === 1) updateChatTitle(chat.id, message || 'Health consultation');
+
+      addMessage('assistant', '');
+      isStreaming = true;
+      sendBtn.disabled = true;
+
+      try {
+        const SYSTEM_MESSAGE = buildSystemMessage();
+        const conversationMessages = chat.messages.slice(0, -1).map(m => ({ role: m.role, content: m.content }));
+        const selectedModel = modelSelector.value;
+
+        const response = await fetch(BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: [SYSTEM_MESSAGE, ...conversationMessages], preferredProvider: selectedModel })
+        });
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let assistantMessage = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          const chunk = decoder.decode(value);
+          for (const line of chunk.split('\n')) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') break;
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.error) { assistantMessage = `❌ ${parsed.error}\n\n💡 Try switching to Groq - LLaMA 3.3 70B for best results.`; updateLastMessage(assistantMessage); }
+                else if (parsed.content) { assistantMessage += parsed.content; updateLastMessage(assistantMessage); }
+              } catch(e) {}
+            }
+          }
+        }
+
+        if (!assistantMessage?.trim()) {
+          updateLastMessage(`⚠️ No response received.\n\n💡 Try using **Groq - LLaMA 3.3 70B** models for the most reliable health information responses.\n\nYou can also visit [HealthCone](https://health-cone.vercel.app/) for more health resources.`);
+        }
+
+      } catch (error) {
+        updateLastMessage(`❌ **Connection Error**\n\n${error.message}\n\n💡 Switch to **Groq - LLaMA 3.3 70B** models for reliable health consultations.\n\nVisit [HealthCone](https://health-cone.vercel.app/) for more help.`);
+      } finally {
+        isStreaming = false;
+        sendBtn.disabled = false;
+      }
+    }
+
+    function autoResize() { messageInput.style.height = 'auto'; messageInput.style.height = messageInput.scrollHeight + 'px'; }
+    messageInput.addEventListener('input', autoResize);
+    messageInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+    sendBtn.addEventListener('click', sendMessage);
+    newChatBtn.addEventListener('click', createNewChat);
+    searchInput.addEventListener('input', (e) => renderChatList(e.target.value));
+
+    // Initialize
+    if (chats.length === 0) createNewChat();
+    else loadChat(chats[0].id);
+    renderChatList();
+  </script>
 </body>
 </html>
