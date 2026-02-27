@@ -7,6 +7,210 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://health-cone.vercel.app/" class="nav-logo">
+    <svg viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="15" stroke="#00e5c8" stroke-width="1.5"/>
+      <path d="M6 16 L10 11 L13 18 L16 8 L19 20 L22 14 L26 16" stroke="#00e5c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M16 22 C16 22 12 18.5 12 16.5 C12 14.8 13.3 14 14.5 14 C15.3 14 16 14.6 16 14.6 C16 14.6 16.7 14 17.5 14 C18.7 14 20 14.8 20 16.5 C20 18.5 16 22 16 22Z" fill="#00e5c8" opacity="0.7"/>
+    </svg>
+    Health<span style="color:var(--cyan)">Cone</span>
+  </a>
+  <div class="nav-links">
+    <a href="https://health-cone.vercel.app/" class="active">Home</a>
+    <a href="https://health-cone.vercel.app/features.html">Features</a>
+    <a href="https://health-cone.vercel.app/about.html">About</a>
+    <a href="https://health-cone.vercel.app/assistant.html">AI Assistant</a>
+    <a href="https://health-cone.vercel.app/admin.html">Admin</a>
+    <a href="https://health-cone.vercel.app/assistant.html" class="nav-cta">Try Now →</a>
+  </div>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="https://health-cone.vercel.app/" class="active">Home</a>
+  <a href="https://health-cone.vercel.app/features.html">Features</a>
+  <a href="https://health-cone.vercel.app/about.html">About</a>
+  <a href="https://health-cone.vercel.app/assistant.html">AI Assistant</a>
+  <a href="https://health-cone.vercel.app/admin.html">Admin Dashboard</a>
+</div>
+
+<!-- HERO -->
+<section style="position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 2rem;">
+  <div class="hero" style="max-width:100%; padding:6rem 0 4rem;">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <div class="pulse-dot"></div>
+        Live Health Monitoring — Active Now
+      </div>
+      <h1>Your Heart.<br><span>Always</span> Protected.</h1>
+      <p>HealthCone combines AI intelligence with wearable smartwatch technology to monitor your heart rate in real time — detecting abnormalities, triggering emergency alerts, and sharing your location with nearby hospitals instantly.</p>
+      <div class="hero-btns">
+        <a href="https://health-cone.vercel.app/assistant.html" class="btn-primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
+          Talk to AI Assistant
+        </a>
+        <a href="https://health-cone.vercel.app/features.html" class="btn-secondary">
+          Explore Features →
+        </a>
+      </div>
+    </div>
+
+    <!-- Floating monitor card -->
+    <div class="hero-visual">
+      <div class="hv-card">
+        <div class="hv-label">Heart Rate Monitor</div>
+        <div class="hv-bpm">72 <span>BPM</span></div>
+        <svg class="hv-wave" viewBox="0 0 340 60">
+          <path class="ecg-line" d="M0 30 L40 30 L50 30 L58 10 L66 50 L74 30 L82 30 L90 30 L100 30 L108 8 L116 52 L124 30 L132 30 L160 30 L168 10 L176 50 L184 30 L200 30 L208 8 L216 52 L224 30 L240 30 L260 30 L268 10 L276 50 L284 30 L300 30 L308 8 L316 52 L324 30 L340 30" stroke="#00e5c8" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+        <div class="hv-status">
+          <div class="pulse-dot"></div>
+          Status: Normal — Monitoring Active
+        </div>
+        <div class="hv-alerts">
+          <div class="hv-alert-item">
+            <span>User #482 — 142 BPM</span>
+            <span class="badge-critical">CRITICAL</span>
+          </div>
+          <div class="hv-alert-item">
+            <span>User #291 — 74 BPM</span>
+            <span class="badge-normal">NORMAL</span>
+          </div>
+          <div class="hv-alert-item">
+            <span>Hospital linked — 4.2 min ETA</span>
+            <span class="badge-normal">ACTIVE</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <span class="stat-num">1,284</span>
+      <div class="stat-label">Active Users Monitored</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">12</span>
+      <div class="stat-label">Hospitals Connected</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">4.2 min</span>
+      <div class="stat-label">Avg Emergency Response</div>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">99.98%</span>
+      <div class="stat-label">System Uptime</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="section-label">How It Works</div>
+  <h2 class="section-title">From Wrist to Hospital<br>in Seconds</h2>
+  <p class="section-sub">HealthCone's intelligent pipeline ensures that when your heart needs help, the right people respond — automatically.</p>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">01</div>
+      <div class="step-icon">⌚</div>
+      <h3>Wearable Sensing</h3>
+      <p>Your smartwatch continuously captures multi-sensor data — heart rate, SpO2, temperature — and streams it securely to HealthCone.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">02</div>
+      <div class="step-icon">🤖</div>
+      <h3>AI Analysis</h3>
+      <p>Our AI engine processes every data point using anomaly detection and predictive risk scoring to identify dangerous patterns instantly.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">03</div>
+      <div class="step-icon">🚨</div>
+      <h3>Emergency Alert</h3>
+      <p>When abnormal activity is detected, an emergency alert fires automatically — notifying both the user and nearby hospitals in under 10 seconds.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">04</div>
+      <div class="step-icon">📍</div>
+      <h3>Location Sharing</h3>
+      <p>Your precise GPS location is shared with the nearest hospital, enabling ambulances to navigate directly to you for the fastest possible response.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BENEFITS -->
+<section class="section" style="padding-top:0;">
+  <div class="section-label">Why HealthCone</div>
+  <h2 class="section-title">Traditional Wisdom Meets<br>Modern Science</h2>
+  <p class="section-sub">HealthCone enhances health and vitality by providing tailored solutions for your unique wellness journey.</p>
+  <div class="benefits-grid">
+    <div class="benefit-card">
+      <div class="benefit-icon">❤️</div>
+      <div>
+        <h3>Early Detection</h3>
+        <p>Continuous monitoring catches cardiac irregularities before they become emergencies — giving you and your doctors critical lead time.</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🧘</div>
+      <div>
+        <h3>Peace of Mind</h3>
+        <p>For users and families alike, knowing that HealthCone watches over you 24/7 transforms daily life — you can move freely without fear.</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🏥</div>
+      <div>
+        <h3>Hospital Integration</h3>
+        <p>Direct real-time connections to 12+ hospitals ensure that when an alert fires, medical teams are already briefed before the ambulance arrives.</p>
+      </div>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon">🌍</div>
+      <div>
+        <h3>Tailored for Rwanda</h3>
+        <p>Designed and built in Rwanda by INEZA AIME BRUNO — optimized for local healthcare infrastructure and community health needs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="cta-box">
+    <h2>Ask HealthCone AI Anything</h2>
+    <p>Our AI assistant is powered by Bruno-GPT5 and trained on HealthCone's health monitoring expertise. Get instant answers about your heart health, wellness tips, or how the system works.</p>
+    <a href="https://health-cone.vercel.app/assistant.html" class="btn-primary" style="display:inline-flex; margin:0 auto;">
+      Start a Conversation →
+    </a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">Health<span style="color:var(--cyan)">Cone</span></div>
+    <div class="footer-links">
+      <a href="https://health-cone.vercel.app/">Home</a>
+      <a href="https://health-cone.vercel.app/features.html">Features</a>
+      <a href="https://health-cone.vercel.app/about.html">About</a>
+      <a href="https://health-cone.vercel.app/assistant.html">AI Assistant</a>
+      <a href="https://health-cone.vercel.app/admin.html">Admin</a>
+    </div>
+    <div>Created by <a href="https://health-cone.vercel.app/about.html">INEZA AIME BRUNO</a> · Rwanda</div>
+  </div>
+</footer>
 <style>
   :root {
     --green-deep: #0d2b1a;
@@ -426,210 +630,6 @@
     .hamburger { display: flex; }
   }
 </style>
-</head>
-<body>
-
-<!-- NAV -->
-<nav>
-  <a href="https://health-cone.vercel.app/" class="nav-logo">
-    <svg viewBox="0 0 32 32" fill="none">
-      <circle cx="16" cy="16" r="15" stroke="#00e5c8" stroke-width="1.5"/>
-      <path d="M6 16 L10 11 L13 18 L16 8 L19 20 L22 14 L26 16" stroke="#00e5c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      <path d="M16 22 C16 22 12 18.5 12 16.5 C12 14.8 13.3 14 14.5 14 C15.3 14 16 14.6 16 14.6 C16 14.6 16.7 14 17.5 14 C18.7 14 20 14.8 20 16.5 C20 18.5 16 22 16 22Z" fill="#00e5c8" opacity="0.7"/>
-    </svg>
-    Health<span style="color:var(--cyan)">Cone</span>
-  </a>
-  <div class="nav-links">
-    <a href="https://health-cone.vercel.app/" class="active">Home</a>
-    <a href="https://health-cone.vercel.app/features">Features</a>
-    <a href="https://health-cone.vercel.app/about">About</a>
-    <a href="https://health-cone.vercel.app/assistant">AI Assistant</a>
-    <a href="https://health-cone.vercel.app/admin">Admin</a>
-    <a href="https://health-cone.vercel.app/assistant" class="nav-cta">Try Now →</a>
-  </div>
-  <div class="hamburger" onclick="toggleMenu()">
-    <span></span><span></span><span></span>
-  </div>
-</nav>
-
-<div class="mobile-menu" id="mobileMenu">
-  <a href="https://health-cone.vercel.app/" class="active">Home</a>
-  <a href="https://health-cone.vercel.app/features">Features</a>
-  <a href="https://health-cone.vercel.app/about">About</a>
-  <a href="https://health-cone.vercel.app/assistant">AI Assistant</a>
-  <a href="https://health-cone.vercel.app/admin">Admin Dashboard</a>
-</div>
-
-<!-- HERO -->
-<section style="position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 2rem;">
-  <div class="hero" style="max-width:100%; padding:6rem 0 4rem;">
-    <div class="hero-content">
-      <div class="hero-badge">
-        <div class="pulse-dot"></div>
-        Live Health Monitoring — Active Now
-      </div>
-      <h1>Your Heart.<br><span>Always</span> Protected.</h1>
-      <p>HealthCone combines AI intelligence with wearable smartwatch technology to monitor your heart rate in real time — detecting abnormalities, triggering emergency alerts, and sharing your location with nearby hospitals instantly.</p>
-      <div class="hero-btns">
-        <a href="https://health-cone.vercel.app/assistant" class="btn-primary">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>
-          Talk to AI Assistant
-        </a>
-        <a href="https://health-cone.vercel.app/features" class="btn-secondary">
-          Explore Features →
-        </a>
-      </div>
-    </div>
-
-    <!-- Floating monitor card -->
-    <div class="hero-visual">
-      <div class="hv-card">
-        <div class="hv-label">Heart Rate Monitor</div>
-        <div class="hv-bpm">72 <span>BPM</span></div>
-        <svg class="hv-wave" viewBox="0 0 340 60">
-          <path class="ecg-line" d="M0 30 L40 30 L50 30 L58 10 L66 50 L74 30 L82 30 L90 30 L100 30 L108 8 L116 52 L124 30 L132 30 L160 30 L168 10 L176 50 L184 30 L200 30 L208 8 L216 52 L224 30 L240 30 L260 30 L268 10 L276 50 L284 30 L300 30 L308 8 L316 52 L324 30 L340 30" stroke="#00e5c8" stroke-width="2" fill="none" stroke-linecap="round"/>
-        </svg>
-        <div class="hv-status">
-          <div class="pulse-dot"></div>
-          Status: Normal — Monitoring Active
-        </div>
-        <div class="hv-alerts">
-          <div class="hv-alert-item">
-            <span>User #482 — 142 BPM</span>
-            <span class="badge-critical">CRITICAL</span>
-          </div>
-          <div class="hv-alert-item">
-            <span>User #291 — 74 BPM</span>
-            <span class="badge-normal">NORMAL</span>
-          </div>
-          <div class="hv-alert-item">
-            <span>Hospital linked — 4.2 min ETA</span>
-            <span class="badge-normal">ACTIVE</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- STATS STRIP -->
-<div class="stats-strip">
-  <div class="stats-inner">
-    <div class="stat-item">
-      <span class="stat-num">1,284</span>
-      <div class="stat-label">Active Users Monitored</div>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num">12</span>
-      <div class="stat-label">Hospitals Connected</div>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num">4.2 min</span>
-      <div class="stat-label">Avg Emergency Response</div>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num">99.98%</span>
-      <div class="stat-label">System Uptime</div>
-    </div>
-  </div>
-</div>
-
-<!-- HOW IT WORKS -->
-<section class="section">
-  <div class="section-label">How It Works</div>
-  <h2 class="section-title">From Wrist to Hospital<br>in Seconds</h2>
-  <p class="section-sub">HealthCone's intelligent pipeline ensures that when your heart needs help, the right people respond — automatically.</p>
-  <div class="steps-grid">
-    <div class="step-card">
-      <div class="step-num">01</div>
-      <div class="step-icon">⌚</div>
-      <h3>Wearable Sensing</h3>
-      <p>Your smartwatch continuously captures multi-sensor data — heart rate, SpO2, temperature — and streams it securely to HealthCone.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">02</div>
-      <div class="step-icon">🤖</div>
-      <h3>AI Analysis</h3>
-      <p>Our AI engine processes every data point using anomaly detection and predictive risk scoring to identify dangerous patterns instantly.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">03</div>
-      <div class="step-icon">🚨</div>
-      <h3>Emergency Alert</h3>
-      <p>When abnormal activity is detected, an emergency alert fires automatically — notifying both the user and nearby hospitals in under 10 seconds.</p>
-    </div>
-    <div class="step-card">
-      <div class="step-num">04</div>
-      <div class="step-icon">📍</div>
-      <h3>Location Sharing</h3>
-      <p>Your precise GPS location is shared with the nearest hospital, enabling ambulances to navigate directly to you for the fastest possible response.</p>
-    </div>
-  </div>
-</section>
-
-<!-- BENEFITS -->
-<section class="section" style="padding-top:0;">
-  <div class="section-label">Why HealthCone</div>
-  <h2 class="section-title">Traditional Wisdom Meets<br>Modern Science</h2>
-  <p class="section-sub">HealthCone enhances health and vitality by providing tailored solutions for your unique wellness journey.</p>
-  <div class="benefits-grid">
-    <div class="benefit-card">
-      <div class="benefit-icon">❤️</div>
-      <div>
-        <h3>Early Detection</h3>
-        <p>Continuous monitoring catches cardiac irregularities before they become emergencies — giving you and your doctors critical lead time.</p>
-      </div>
-    </div>
-    <div class="benefit-card">
-      <div class="benefit-icon">🧘</div>
-      <div>
-        <h3>Peace of Mind</h3>
-        <p>For users and families alike, knowing that HealthCone watches over you 24/7 transforms daily life — you can move freely without fear.</p>
-      </div>
-    </div>
-    <div class="benefit-card">
-      <div class="benefit-icon">🏥</div>
-      <div>
-        <h3>Hospital Integration</h3>
-        <p>Direct real-time connections to 12+ hospitals ensure that when an alert fires, medical teams are already briefed before the ambulance arrives.</p>
-      </div>
-    </div>
-    <div class="benefit-card">
-      <div class="benefit-icon">🌍</div>
-      <div>
-        <h3>Tailored for Rwanda</h3>
-        <p>Designed and built in Rwanda by INEZA AIME BRUNO — optimized for local healthcare infrastructure and community health needs.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- CTA -->
-<div class="cta-section">
-  <div class="cta-box">
-    <h2>Ask HealthCone AI Anything</h2>
-    <p>Our AI assistant is powered by Bruno-GPT5 and trained on HealthCone's health monitoring expertise. Get instant answers about your heart health, wellness tips, or how the system works.</p>
-    <a href="https://health-cone.vercel.app/assistant" class="btn-primary" style="display:inline-flex; margin:0 auto;">
-      Start a Conversation →
-    </a>
-  </div>
-</div>
-
-<!-- FOOTER -->
-<footer>
-  <div class="footer-inner">
-    <div class="footer-logo">Health<span style="color:var(--cyan)">Cone</span></div>
-    <div class="footer-links">
-      <a href="https://health-cone.vercel.app/">Home</a>
-      <a href="https://health-cone.vercel.app/features">Features</a>
-      <a href="https://health-cone.vercel.app/about">About</a>
-      <a href="https://health-cone.vercel.app/assistant">AI Assistant</a>
-      <a href="https://health-cone.vercel.app/admin">Admin</a>
-    </div>
-    <div>Created by <a href="https://health-cone.vercel.app/about">INEZA AIME BRUNO</a> · Rwanda</div>
-  </div>
-</footer>
-
 <script>
 function toggleMenu() {
   document.getElementById('mobileMenu').classList.toggle('open');
